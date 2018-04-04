@@ -14,7 +14,6 @@ use Ratchet\ConnectionInterface;
 class ChatSocket extends BaseSocket
 {
     protected $clients;
-    protected $users;
 
     public function __construct() {
         $this->clients = new \SplObjectStorage;
@@ -25,6 +24,8 @@ class ChatSocket extends BaseSocket
         $this->clients->attach($conn);
 
         echo "New connection! ({$conn->resourceId})\n";
+
+        //dump($conn->resourceId);
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
@@ -53,5 +54,4 @@ class ChatSocket extends BaseSocket
 
         $conn->close();
     }
-
 }

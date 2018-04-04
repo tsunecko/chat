@@ -36,7 +36,7 @@
 
                         //open connection
                         socket.onopen = function(e) {
-                            status.innerHTML = "Connection established!  <br>";
+                            status.innerHTML = '<span style="color:#A9A9A9; font-style: italic">' + user + ' connected to chat! </span><br>';
                         };
 
                         //close connection
@@ -55,7 +55,7 @@
 
                             // TODO Rewrite randcolor to saving color for user
 
-                            status.innerHTML += '<span style="color:' + randcolor() + '"><b>' + message.user + '</b></span>: ' + message.msg + '<br>';
+                            status.innerHTML += '<span style="color:' + randcolor() + '"><b>' + message.user + '</b></span>: ' + message.msg + '<span style="color:#A9A9A9; font-style: italic"> ' + message.hour + ":" + message.min + '</span><br>';
                         };
 
                         //errors
@@ -64,9 +64,12 @@
                         }
 
                         document.forms["messages"].onsubmit = function() {
+                            let d = new Date();
                             let message = {
                                 user: user,
-                                msg: this.msg.value
+                                msg: this.msg.value,
+                                hour: d.getHours(),
+                                min: d.getMinutes()
                             }
                             socket.send(JSON.stringify(message));
                             return false;
