@@ -10,6 +10,8 @@ namespace App\Classes\Socket;
 
 use App\Classes\Socket\BaseSocket;
 use Ratchet\ConnectionInterface;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ChatSocket extends BaseSocket
 {
@@ -44,7 +46,10 @@ class ChatSocket extends BaseSocket
         $this->clients->detach($conn);
 
         //disconnect user
-
+        $id = Auth::user()->id;
+        DB::table('users')
+            ->where('id',$id)
+            ->update(['islogin' => 'false']);
 
         echo "Connection {$conn->resourceId} has disconnected\n";
     }

@@ -13,8 +13,15 @@
                         {{ csrf_field() }}
 
                     <div class="form-group">
-                        <label for="exampleFormControlTextarea2">Enter message, {{ Auth::user()->name }}</label>
-                        <textarea class="form-control rounded-0" id="exampleFormControlTextarea2" rows="3" placeholder="Your message" name="msg"></textarea>
+                        <label for="online">Online now:</label>
+                        <div id="online">
+                            {{--{{ $onlineUsers }}--}}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="msg">Enter message, {{ Auth::user()->name }}</label>
+                        <textarea class="form-control rounded-0" id="msg" rows="3" placeholder="Your message" name="msg"></textarea>
                     </div>
 
                     <input type="submit" value="Send"/>
@@ -33,10 +40,15 @@
                         let socket = new WebSocket('ws://localhost:8080');
                         let status = document.querySelector("#status");
                         let user = @json($username);
+                        let all = @json($onlineUsers);
+
+                        let names = all.map(e => e.name);
+
+
 
                         //open connection
                         socket.onopen = function(e) {
-                            status.innerHTML = '<span style="color:#A9A9A9; font-style: italic">' + user + ' connected to chat! </span><br>';
+                            document.getElementById('online').innerText = names.join(', ');
                         };
 
                         //close connection
