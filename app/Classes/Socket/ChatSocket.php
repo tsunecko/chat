@@ -22,12 +22,22 @@ class ChatSocket extends BaseSocket
     }
 
     public function onOpen(ConnectionInterface $conn) {
+
+        //get user`s token from current session
+        $t = $conn->httpRequest->getUri()->getQuery();
+        //change this user`s status login
+        DB::table('users')
+            ->where('remember_token',$t)
+            ->update(['islogin' => 'true']);
+
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
 
         echo "New connection! ({$conn->resourceId})\n";
 
-        //dump($conn->resourceId);
+        //dump($conn);
+
+
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
@@ -42,14 +52,16 @@ class ChatSocket extends BaseSocket
     }
 
     public function onClose(ConnectionInterface $conn) {
-        // The connection is closed, remove it, as we can no longer send it messages
-        $this->clients->detach($conn);
+        //get user`s token from current session
+        $t = $conn->httpRequest->getUri()->getQuery();
 
         //disconnect user
-        $id = Auth::user()->id;
         DB::table('users')
-            ->where('id',$id)
+            ->where('remember_token',$t)
             ->update(['islogin' => 'false']);
+
+        // The connection is closed, remove it, as we can no longer send it messages
+        $this->clients->detach($conn);
 
         echo "Connection {$conn->resourceId} has disconnected\n";
     }

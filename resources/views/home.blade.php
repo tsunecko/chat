@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="msg">Enter message, {{ Auth::user()->name }}</label>
+                        <label for="msg">Enter message, {{ $username }}</label>
                         <textarea class="form-control rounded-0" id="msg" rows="3" placeholder="Your message" name="msg"></textarea>
                     </div>
 
@@ -37,7 +37,7 @@
                 <script>
                     window.onload = function() {
 
-                        let socket = new WebSocket('ws://localhost:8080');
+                        let socket = new WebSocket('ws://localhost:8080?{{ $token }}');
                         let status = document.querySelector("#status");
                         let user = @json($username);
                         let all = @json($onlineUsers);
@@ -49,6 +49,17 @@
                         //open connection
                         socket.onopen = function(e) {
                             document.getElementById('online').innerText = names.join(', ');
+
+
+
+
+
+                            // Save data to the current local store
+                            localStorage.setItem("token", "John");
+
+
+
+
                         };
 
                         //close connection
@@ -75,6 +86,7 @@
                             status.innerHTML = "Error: " + e.message;
                         }
 
+                        //set message into json after press button "send"
                         document.forms["messages"].onsubmit = function() {
                             let d = new Date();
                             let message = {

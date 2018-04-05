@@ -26,15 +26,14 @@ class HomeController extends Controller
     public function index()
     {
         $username = Auth::user()->name;
+        $token = Auth::user()->remember_token;
 
-        DB::table('users')
-            ->where('name',$username)
-            ->update(['islogin' => 'true']);
+        //get all online users
         $onlineUsers = DB::table('users')
             ->select('name')
             ->where('islogin','true')
             ->get();
 
-        return view('home', compact('username','onlineUsers'));
+        return view('home', compact('username','onlineUsers', 'token'));
     }
 }
