@@ -39,51 +39,64 @@
 
                         let socket = new WebSocket('ws://localhost:8080?{{ $token }}');
                         let status = document.querySelector("#status");
-                        let user = @json($username);
-                        let all = @json($onlineUsers);
 
-                        let names = all.map(e => e.name);
+                        let user = @json($username);
+                        let names = @json($onlineUsers).map(event => event.name);
+
+                        let buttonMute = '<button type="button" class="btn btn-warning btn-xs">Mute</button> ';
+                        let buttonBan = '<button type="button" class="btn btn-danger btn-xs">Ban</button> ';
+
+
 
 
 
                         //open connection
-                        socket.onopen = function(e) {
-                            document.getElementById('online').innerText = names.join(', ');
+                        socket.onopen = function(event) {
+
+
+                            let message = {
+                                "islogin": user
+                            }
+                            socket.send(JSON.stringify(message));
 
 
 
+                            status.innerHTML = "<span style=\"color:#A9A9A9; font-style: italic\"> Connection established! </span><br>";
 
+                            //show online users with buttons
+                            for(let name of names) {
+                                document.getElementById('online').innerHTML = buttonMute + buttonBan + name + ', ';
+                            }
 
                             // Save data to the current local store
-                            localStorage.setItem("token", "John");
-
-
-
-
+                            //localStorage.setItem("token", "John");
                         };
 
                         //close connection
-                        socket.onclose = function(e) {
-                            if(e.wasClean){
+                        socket.onclose = function(event) {
+                            if(event.wasClean){
                                 status.innerHTML = "Connection close";
                             } else {
                                 status.innerHTML = "Connection close for some reason!";
                             };
-                            status.innerHTML += "<br>error code: " + e.code + "<br>reason: " + e.reason;
+                            status.innerHTML += "<br>error code: " + event.code + "<br>reason: " + event.reason;
                         }
 
                         //get data
-                        socket.onmessage = function(e){
-                            let message = JSON.parse(e.data);
+                        socket.onmessage = function(event){
 
-                            // TODO Rewrite randcolor to saving color for user
-
-                            status.innerHTML += '<span style="color:' + randcolor() + '"><b>' + message.user + '</b></span>: ' + message.msg + '<span style="color:#A9A9A9; font-style: italic"> ' + message.hour + ":" + message.min + '</span><br>';
+                            let message = JSON.parse(event.data);
+                            //print logic for different data from json
+                            if (message.islogin) {
+                                status.innerHTML += '<span style="color:#A9A9A9; font-style: italic">' + message.islogin + ' is online </span><br>';
+                            } else {
+                                status.innerHTML += '<span style="color:' + randcolor() + '"><b>' + message.user + '</b></span>: ' + message.msg + '<span style="color:#A9A9A9; font-style: italic"> ' + message.hour + ":" + message.min + '</span><br>';
+                            }
                         };
 
                         //errors
-                        socket.onerror = function(e){
-                            status.innerHTML = "Error: " + e.message;
+                        socket.onerror = function(event){
+                            status.innerHTML = "Error: " + event.message;
                         }
 
                         //set message into json after press button "send"

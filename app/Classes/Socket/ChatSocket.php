@@ -25,7 +25,8 @@ class ChatSocket extends BaseSocket
 
         //get user`s token from current session
         $t = $conn->httpRequest->getUri()->getQuery();
-        //change this user`s status login
+
+        //user is online
         DB::table('users')
             ->where('remember_token',$t)
             ->update(['islogin' => 'true']);
@@ -45,8 +46,8 @@ class ChatSocket extends BaseSocket
         echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
             , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
 
+        //send message to each client connected
         foreach ($this->clients as $client) {
-            //send to each client connected
             $client->send($msg);
         }
     }
@@ -55,7 +56,7 @@ class ChatSocket extends BaseSocket
         //get user`s token from current session
         $t = $conn->httpRequest->getUri()->getQuery();
 
-        //disconnect user
+        //user is offline
         DB::table('users')
             ->where('remember_token',$t)
             ->update(['islogin' => 'false']);
