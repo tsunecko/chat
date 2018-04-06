@@ -43,10 +43,6 @@
 
                             let user = @json($username);
 
-                            let buttonMute = '<button type="button" class="btn btn-warning btn-xs">Mute</button> ';
-                            let buttonBan = '<button type="button" class="btn btn-danger btn-xs">Ban</button> ';
-
-
                             //open connection
                             socket.onopen = function (event) {
 
@@ -84,28 +80,45 @@
                                             $('#online').empty();
                                         }
                                         for (let user of data.list.names) {
-                                            $('#online').append($('<span id="onlinenames">')
-                                                .html(user).addClass('btn btn-default btn-xs'));
+                                            $('#online').append($('<span id="onlinenames" class="btn btn-default">' + user +
+                                                ' <span id="mute" onclick="mute(' + user + ')" class="glyphicon glyphicon-volume-off"></span> ' +
+                                                '<span id="ban" class="glyphicon glyphicon-remove-circle"></span>' + ' </span>'));
+
                                         }
                                         break;
 
                                     //print into chat user is online
                                     case 'online_into_chat':
                                         $('#chat').append(
-                                            '<span style="color:#A9A9A9; font-style: italic">' + data.islogin + ' is online</span><br>'
+                                            '<span style="color:#008080; font-style: italic">' + data.islogin + ' is online</span><br>'
                                         );
                                         break;
 
                                     //print message into chat
                                     case 'message':
                                         $('#chat').append(
-                                            '<span style="color:' + randcolor() + '"><b>' + data.user + '</b></span>: ' + data.text + '<br>'
+                                            '<span style="color:' + randcolor() + '; font-weight: bold">' + data.user + '</span>: ' + data.text + '<br>'
                                         );
                                         break;
 
+                                    //print into chat user is offline
                                     case 'offline_into_chat':
                                         $('#chat').append(
                                             '<span style="color:#A9A9A9; font-style: italic">' + data.islogout + ' is offline</span><br>'
+                                        );
+                                        break;
+
+                                    //mute
+                                    case 'mute':
+                                        $('#chat').append(
+                                            '<span style="color:#B8860B; font-style: italic">' + data.user + ' is muted</span><br>'
+                                        );
+                                        break;
+
+                                    //ban
+                                    case 'ban':
+                                        $('#chat').append(
+                                            '<span style="color:#800000; font-style: italic">' + data.user + ' is baned</span><br>'
                                         );
                                         break;
                                 }
@@ -124,6 +137,30 @@
                                     type: 'message',
                                     user: user,
                                     text: this.msg.value,
+                                }
+                                socket.send(JSON.stringify(message));
+                                $('#msg').val('');      //clear textarea after sending message
+                                return false;
+                            }
+
+
+                            //mute after press icon
+                            function mute(user) {
+                                console.log(user);
+                                let message = {
+                                    type: 'mute',
+                                    user: user,
+                                }
+                                socket.send(JSON.stringify(message));
+                                return false;
+                            }
+
+
+                            //ban after press icon
+                            document.getElementById("ban").onclick = function () {
+                                let message = {
+                                    type: 'ban',
+                                    user: user,
                                 }
                                 socket.send(JSON.stringify(message));
                                 return false;

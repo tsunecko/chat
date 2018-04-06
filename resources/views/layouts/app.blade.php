@@ -14,6 +14,8 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     {{--favicon--}}
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+
+    <link rel="stylesheet" href="{{ asset('/css/bootstrap.min.css') }}" type="text/css" media="screen, projection"/>
 </head>
 <body>
     <div id="app">

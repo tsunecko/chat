@@ -78,8 +78,6 @@ class ChatSocket extends BaseSocket
                         'type' => 'message',
                         'user' => $data['user'],
                         'text' => $data['text'],
-//                        'hour' => $data['hour'],
-//                        'min' => $data['min'],
                     ]));
                 }
                 break;
@@ -93,6 +91,25 @@ class ChatSocket extends BaseSocket
                     ]));
                 }
                 break;
+
+            //mute
+            case 'mute':
+                foreach ($this->clients as $client) {
+                    $client->send(json_encode([
+                        'type' => 'mute',
+                        'user' => $data['user'],
+                    ]));
+                }
+                break;
+
+            //ban
+            case 'ban':
+                foreach ($this->clients as $client) {
+                    $client->send(json_encode([
+                        'type' => 'ban',
+                        'user' => $data['user'],
+                    ]));
+                }
         }
     }
 
