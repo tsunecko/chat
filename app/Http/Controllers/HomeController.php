@@ -28,12 +28,6 @@ class HomeController extends Controller
         $username = Auth::user()->name;
         $token = Auth::user()->remember_token;
 
-        //get all online users
-        $onlineUsers = DB::table('users')
-            ->select('name')
-            ->where('islogin','true')
-            ->get();
-
-        return view('home', compact('username','onlineUsers', 'token'));
+        return view('home', compact('username','token'));
     }
 }
