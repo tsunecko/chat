@@ -11,6 +11,7 @@ namespace App\Classes\Socket;
 use App\Classes\Socket\BaseSocket;
 use App\Classes\User;
 use Ratchet\ConnectionInterface;
+use Illuminate\Support\Facades\Auth;
 
 class ChatSocket extends BaseSocket
 {
@@ -29,7 +30,7 @@ class ChatSocket extends BaseSocket
 
         // find user in db and check banned status
         $user = User::where(['remember_token' => $t])->first();
-        if (!$user || $user->isbanned) {
+        if (!$user || $user->isbaned === 'true') {
             $conn->close();
         }
 
@@ -71,16 +72,26 @@ class ChatSocket extends BaseSocket
 
         switch ($data['type']) {
 
+
             //send text message to each client connected
             case 'message':
-                foreach ($this->clients as $client) {
-                    $client->send(json_encode([
-                        'type' => 'message',
-                        'user' => $data['user'],
-                        'text' => $data['text'],
-                    ]));
+                //find user
+                $username = $data['user'];
+                $user = User::where(['name' => $username])->first();
+                //dd($user->name);
+
+                if ($user->ismuted === 'true') {
+                    break;
+                } else {
+                    foreach ($this->clients as $client) {
+                        $client->send(json_encode([
+                            'type' => 'message',
+                            'user' => $data['user'],
+                            'text' => $data['text'],
+                        ]));
+                    }
+                    break;
                 }
-                break;
 
             // send message when user online
             case 'online_into_chat':
@@ -94,22 +105,36 @@ class ChatSocket extends BaseSocket
 
             //mute
             case 'mute':
+                //find user
+                $username = $data['user'];
+                $user = User::where(['name' => $username]);
+
                 foreach ($this->clients as $client) {
                     $client->send(json_encode([
                         'type' => 'mute',
                         'user' => $data['user'],
                     ]));
                 }
+                //set ban into Users table
+                $user->update(['ismuted'=>'true']);
                 break;
 
             //ban
             case 'ban':
+                //find user
+                $username = $data['user'];
+                $user = User::where(['name' => $username])->first();
+
+                //send message into chat
                 foreach ($this->clients as $client) {
                     $client->send(json_encode([
                         'type' => 'ban',
                         'user' => $data['user'],
                     ]));
                 }
+                //set ban into Users table
+                $user->update(['isbaned'=>'true']);
+                break;
         }
     }
 
