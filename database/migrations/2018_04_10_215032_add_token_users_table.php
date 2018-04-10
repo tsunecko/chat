@@ -7,7 +7,6 @@ use Illuminate\Support\Str;
 
 class AddTokenUsersTable extends Migration
 {
-    protected $random = str_random(20);
     /**
      * Run the migrations.
      *
@@ -16,7 +15,7 @@ class AddTokenUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('token')->default()->unique();
+            $table->string('token');
         });
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Dirape\Token\Token;
 
 class FirstUserTableSeeder extends Seeder
 {
@@ -18,6 +19,7 @@ class FirstUserTableSeeder extends Seeder
             'type' => ('admin'),
             'isbaned' => ('false'),
             'ismuted' => ('false'),
+            'token' => (new Token())->Unique('users', 'token', 60),
             ]);
     }
 }

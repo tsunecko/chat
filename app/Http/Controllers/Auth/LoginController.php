@@ -46,11 +46,6 @@ class LoginController extends Controller
         return 'name';
     }
 
-//    function logout(Request $request)
-//    {
-//        return 'wow';
-//    }
-
     /**
      * Log the user out of the application.
      *
