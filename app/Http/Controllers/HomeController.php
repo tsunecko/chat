@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Classes\Message;
+use App\Events\NewMessageAdded;
 
 class HomeController extends Controller
 {
@@ -25,6 +27,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $messages = Message::all();
         $username = Auth::user()->name;
         $token = Auth::user()->remember_token;
 
@@ -36,6 +39,15 @@ class HomeController extends Controller
             ->get();
         $type = Auth::user()->type;
 
-        return view('home', compact('username','token', 'users', 'type'));
+        return view('home', compact('messages','username','token', 'users', 'type'));
+    }
+
+    public function postMessage(Request $request)
+    {
+        $message = Message::create($request->all());
+        event(
+            new NewMessageAdded($message)
+        );
+        return redirect()->back();
     }
 }

@@ -4,12 +4,12 @@
     <div class="container">
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
-                <div class="panel panel-default">
+                <div class="panel panel-primary">
                     <div class="panel-heading">Chat</div>
 
                     <div class="panel-body">
 
-                        <form name="messages" id="messages" action="" method="">
+                        <form name="messages" id="messages" action="/chat/message" method="post">
                             {{ csrf_field() }}
 
                             {{--show all users only for admin--}}
@@ -33,13 +33,17 @@
                                           name="msg"></textarea>
                             </div>
 
-                            <button type="button" class="sendmsg" id="sendmsg" value="">Send</button>
+                            <button type="button" class="btn btn-primary sendmsg" id="sendmsg" value="">Send</button>
                         </form>
                         <br>
 
                         <div class="form-group">
                             <label for="chat">Chat</label>
-                            <div id="chat"></div>
+                            <div id="chat">
+                                @foreach($messages as $message)
+                                    <span style="font-weight: bold"> {{ $message->name }} </span> {{ $message->text }} <br>
+                                    @endforeach
+                            </div>
                         </div>
 
                     </div>
@@ -57,7 +61,6 @@
     <script>
         //let csrfToken = document.head.querySelector('meta[name="csrf-token"]').content
         let socket = new WebSocket('ws://localhost:8080?{{ $token }}');
-        let chat = $("#chat");
 
         let user = @json($username);
 
@@ -68,8 +71,8 @@
             //TODO кнопка размут
 
             $('#allusers').append($('<span id="allusersnames" class="btn btn-default">' + user.name +
-                ' <button type="button" class="glyphicon glyphicon-volume-off mute" data-user="' + user.name +
-                '"></button> <button type="button" class="glyphicon glyphicon-remove-circle ban" data-user="' + user.name + '"></button></span>'));
+                ' <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs mute" data-user="' + user.name +
+                '"></button> <button type="button" class="glyphicon glyphicon-remove-circle btn-danger btn-xs ban" data-user="' + user.name + '"></button></span>  '));
         }
 
         window.onload = function () {
@@ -91,9 +94,14 @@
 
             //listener - if button clicked - apply the function sendmsg
             $("#messages").on("click", ".sendmsg", function () {
+
                 let past = localStorage.getItem('sendDate');
+                // check if message is longer than 200 letters
+                if( $("#msg").val().length >= 200) {
+                    $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Your message is longer than 200 letters!<br>'));
+                }
                 //check if sendDate exist and passed less 15 sec
-                if ((new Date - past)/1000 <= 15) {
+                else if ((new Date - past)/1000 <= 15) {
                     $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Left ' + (15 -(new Date - past)/1000).toFixed(2) + ' sec for sending next message<br>'));
                 } else {
                     // store sending message time
@@ -142,7 +150,7 @@
                             $('#online').empty();       //clear area after every update
                         }
                         for (let user of data.list.names) {
-                            $('#online').append($('<span>').addClass("btn btn-default btn-xs").attr("id", "onlinenames").text(user));
+                            $('#online').append($('<span>').addClass("btn btn-default btn-sm").attr("id", "onlinenames").text(user));
                         }
                         break;
 
@@ -195,9 +203,9 @@
 
         //get random color
         function randcolor() {
-            let r = Math.floor(Math.random() * (256));
-            let g = Math.floor(Math.random() * (256));
-            let b = Math.floor(Math.random() * (256));
+            let r = Math.floor(Math.random() * (246));
+            let g = Math.floor(Math.random() * (246));
+            let b = Math.floor(Math.random() * (246));
             let color = '#' + r.toString(16) + g.toString(16) + b.toString(16);
             return color;
         }
