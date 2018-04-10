@@ -63,7 +63,7 @@ class LoginController extends Controller
 
         $request->session()->invalidate();
 
-        return view('auth.login');
+        return redirect('login');
     }
 
 }

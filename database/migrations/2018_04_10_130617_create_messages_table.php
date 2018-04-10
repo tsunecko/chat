@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIsloginUsersTable extends Migration
+class CreateMessagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddIsloginUsersTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('islogin', ['true', 'false'])->default('false');
+        Schema::create('messages', function (Blueprint $table) {
+            $table->increments('id_msg');
+            $table->integer('id_user')->unsigned();
+            $table->text('message', 200)->nullable();
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddIsloginUsersTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('islogin');
-        });
+        Schema::dropIfExists('messages');
     }
 }

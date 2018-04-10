@@ -69,6 +69,7 @@ class ChatSocket extends BaseSocket
         if (!isset($data['type'])) {
             return;
         }
+        dump($data['type']);
 
         switch ($data['type']) {
 
@@ -78,7 +79,6 @@ class ChatSocket extends BaseSocket
                 //find user
                 $username = $data['user'];
                 $user = User::where(['name' => $username])->first();
-                //dd($user->name);
 
                 if ($user->ismuted === 'true') {
                     break;
@@ -109,13 +109,14 @@ class ChatSocket extends BaseSocket
                 $username = $data['user'];
                 $user = User::where(['name' => $username]);
 
+                //send message into chat
                 foreach ($this->clients as $client) {
                     $client->send(json_encode([
                         'type' => 'mute',
                         'user' => $data['user'],
                     ]));
                 }
-                //set ban into Users table
+                //set mute into Users table
                 $user->update(['ismuted'=>'true']);
                 break;
 
@@ -123,7 +124,7 @@ class ChatSocket extends BaseSocket
             case 'ban':
                 //find user
                 $username = $data['user'];
-                $user = User::where(['name' => $username])->first();
+                $user = User::where(['name' => $username]);
 
                 //send message into chat
                 foreach ($this->clients as $client) {

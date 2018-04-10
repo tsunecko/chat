@@ -12,6 +12,15 @@
                         <form name="messages" id="messages" action="" method="">
                             {{ csrf_field() }}
 
+                            {{--show all users only for admin--}}
+                            @if ( $type  === 'admin' )
+                            <div class="form-group">
+                                <label for="allusers">All users:</label>
+                                <div id="allusers">
+                                </div>
+                            </div>
+                            @endif
+
                             <div class="form-group">
                                 <label for="online">Online now:</label>
                                 <div id="online">
@@ -46,29 +55,35 @@
     </script>
 
     <script>
-        let csrfToken = document.head.querySelector('meta[name="csrf-token"]').content
+        //let csrfToken = document.head.querySelector('meta[name="csrf-token"]').content
         let socket = new WebSocket('ws://localhost:8080?{{ $token }}');
-        let chat = document.querySelector("#chat");
+        let chat = $("#chat");
 
         let user = @json($username);
 
+        //show all users with buttons
+        let allusers = @json($users);
+        for ( let user of allusers) {
+
+            //TODO кнопка размут
+
+            $('#allusers').append($('<span id="allusersnames" class="btn btn-default">' + user.name +
+                ' <button type="button" class="glyphicon glyphicon-volume-off mute" data-user="' + user.name +
+                '"></button> <button type="button" class="glyphicon glyphicon-remove-circle ban" data-user="' + user.name + '"></button></span>'));
+        }
+
         window.onload = function () {
 
-            // let postData = {
-            //     'X-CSRF-TOKEN': csrfToken
-            // }
-            // console.log('---', postData)
-            // $.post('/logout',postData )
 
             //listener - if button clicked - apply the function mute
-            $("#online").on("click", ".mute", function () {
+            $("#allusers").on("click", ".mute", function () {
                 let user = $(this).data('user');    //get data from button object
                 console.log('--- mute', user)
                 mute(user);                         //apply function to button
             });
 
             //listener - if button clicked - apply the function ban
-            $("#online").on("click", ".ban", function () {
+            $("#allusers").on("click", ".ban", function () {
                 let user = $(this).data('user');    //get data from button object
                 console.log('--- ban', user)
                 ban(user);                          //apply function to button
@@ -76,10 +91,20 @@
 
             //listener - if button clicked - apply the function sendmsg
             $("#messages").on("click", ".sendmsg", function () {
-                //let user = $(this).data('user');    //get data from button object
-                console.log('--- msg', user)
-                sendmsg();                          //apply function to button
+                let past = localStorage.getItem('sendDate');
+                //check if sendDate exist and passed less 15 sec
+                if ((new Date - past)/1000 <= 15) {
+                    $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Left ' + (15 -(new Date - past)/1000).toFixed(2) + ' sec for sending next message<br>'));
+                } else {
+                    // store sending message time
+                    let sendDate = Date.now();
+                    localStorage.setItem('sendDate', sendDate);
+                    // apply func sendmsg
+                    console.log('--- msg', user)
+                    sendmsg();                          //apply function to button
+                }
             });
+
 
             //open connection
             socket.onopen = function (event) {
@@ -95,13 +120,12 @@
 
             //close connection
             socket.onclose = function (event) {
-
                 if (event.wasClean) {
-                    chat.innerHTML = "Connection close";
+                    $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Connection close'));
                 } else {
-                    chat.innerHTML = "Connection close for some reason!";
+                    $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Connection close for some reason!'));
                 }
-                chat.innerHTML += "<br>error code: " + event.code + "<br>reason: " + event.reason;
+                $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('<br>error code: ' + event.code + '<br>reason: ' + event.reason));
             }
 
 
@@ -114,22 +138,18 @@
 
                     //send current online users to all users
                     case 'userlist':
-                        if ('<span id="onlinenames">') {
-                            $('#online').empty();
+                        if ($('onlinenames')) {
+                            $('#online').empty();       //clear area after every update
                         }
                         for (let user of data.list.names) {
-                            //console.log('test', user); //udalit id
-                            $('#online').append($('<span id="onlinenames" class="btn btn-default">' + user +
-                                ' <button type="button" class="glyphicon glyphicon-volume-off mute" data-user="' + user + '"></button> ' +
-                                '<button type="button" class="glyphicon glyphicon-remove-circle ban" data-user="' + user + '"></button>' + ' </span>'));
+                            $('#online').append($('<span>').addClass("btn btn-default btn-xs").attr("id", "onlinenames").text(user));
                         }
                         break;
 
                     //print into chat user is online
                     case 'online_into_chat':
                         $('#chat').append(
-                            '<span style="color:#A9A9A9; font-style: italic">' + data.islogin + ' is online</span><br>'
-                        );
+                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.islogin + ' is online<br>'));
                         break;
 
                     //print message into chat
@@ -142,44 +162,35 @@
                     //print into chat user is offline
                     case 'offline_into_chat':
                         $('#chat').append(
-                            '<span style="color:#A9A9A9; font-style: italic">' + data.islogout + ' is offline</span><br>'
-                        );
+                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.islogout + ' is offline<br>'));
                         break;
 
                     //mute
                     case 'mute':
                         if(data.user === user) {
-
+                            $('#chat').append($('<span>').css('color','#8B0000').css('font-weight','700').html('You are muted!<br>'));
                         }
                         $('#chat').append(
-                            '<span style="color:#A9A9A9; font-style: italic">' + data.user + ' is muted</span><br>'
-                        );
+                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.user + ' is muted<br>'));
                         break;
 
                     //ban
                     case 'ban':
-                        //console.log('---', data.user, user)
                         if(data.user === user) {
                             window.location.href = '/logout';
                         }
                         $('#chat').append(
-                            '<span style="color:#A9A9A9; font-style: italic">' + data.user + ' is baned</span><br>'
-                        );
+                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.user + ' is baned<br>'));
                         break;
                 }
             };
 
             //errors
             socket.onerror = function (event) {
-                chat.innerHTML = "Error: " + event.message;
+                $('#chat').append(
+                    $('<span>').html('Error: ' + event.message + '<br>'));
             }
 
-            //set message into json after press ANY button "send"
-            // document.messages.onsubmit = function () {
-            //     let message = {}
-            //     socket.send(JSON.stringify(message));
-            //     return false;
-            // }
         }
 
         //get random color
@@ -209,9 +220,6 @@
                 user: user,
             };
             socket.send(JSON.stringify(message));
-            //logout and redirect into login form
-            //window.location.href = "{{ route('logout') }}";
-            //document.getElementById('logout-form').submit();
             return false;
         }
 
