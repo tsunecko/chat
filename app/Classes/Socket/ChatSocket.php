@@ -29,7 +29,8 @@ class ChatSocket extends BaseSocket
         $t = $conn->httpRequest->getUri()->getQuery();
 
         // find user in db and check banned status
-        $user = User::where(['remember_token' => $t])->first();
+        $user = User::where(['token' => $t])->first();
+        dump($user);
         if (!$user || $user->isbaned === 'true') {
             $conn->close();
         }
@@ -44,6 +45,7 @@ class ChatSocket extends BaseSocket
         foreach ($this->clients as $client) {
             $names[] = $client->user->name;
         }
+        //dump($names);
 
         // send to new user current user list
         foreach ($this->clients as $client) {
@@ -77,8 +79,8 @@ class ChatSocket extends BaseSocket
             //send text message to each client connected
             case 'message':
                 //find user
-                $username = $data['user'];
-                $user = User::where(['name' => $username])->first();
+                $token = $data['token'];
+                $user = User::where(['token' => $token])->first();
 
                 if ($user->ismuted === 'true') {
                     break;
@@ -106,8 +108,8 @@ class ChatSocket extends BaseSocket
             //mute
             case 'mute':
                 //find user
-                $username = $data['user'];
-                $user = User::where(['name' => $username]);
+                $token = $data['token'];
+                $user = User::where(['token' => $token]);
 
                 //send message into chat
                 foreach ($this->clients as $client) {
@@ -123,8 +125,8 @@ class ChatSocket extends BaseSocket
             //ban
             case 'ban':
                 //find user
-                $username = $data['user'];
-                $user = User::where(['name' => $username]);
+                $token = $data['token'];
+                $user = User::where(['token' => $token]);
 
                 //send message into chat
                 foreach ($this->clients as $client) {

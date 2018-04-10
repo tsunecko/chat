@@ -40,9 +40,9 @@
                         <div class="form-group">
                             <label for="chat">Chat</label>
                             <div id="chat">
-                                @foreach($messages as $message)
+                                {{--@foreach($messages as $message)
                                     <span style="font-weight: bold"> {{ $message->name }} </span> {{ $message->text }} <br>
-                                    @endforeach
+                                    @endforeach--}}
                             </div>
                         </div>
 
@@ -60,6 +60,7 @@
 
     <script>
         //let csrfToken = document.head.querySelector('meta[name="csrf-token"]').content
+        let token = @json($token);
         let socket = new WebSocket('ws://localhost:8080?{{ $token }}');
 
         let user = @json($username);
@@ -146,6 +147,7 @@
 
                     //send current online users to all users
                     case 'userlist':
+                        console.log(data.list.names);
                         if ($('onlinenames')) {
                             $('#online').empty();       //clear area after every update
                         }
@@ -215,6 +217,7 @@
             let message = {
                 type: 'mute',
                 user: user,
+                token: token,
             };
             socket.send(JSON.stringify(message));
             return false;
@@ -226,6 +229,7 @@
             let message = {
                 type: 'ban',
                 user: user,
+                token: token,
             };
             socket.send(JSON.stringify(message));
             return false;
@@ -237,6 +241,7 @@
                 type: 'message',
                 user: user,
                 text: this.msg.value,
+                token: token,
             };
             socket.send(JSON.stringify(message));
             $('#msg').val('');      //clear textarea after sending message

@@ -27,10 +27,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $messages = Message::all();
+        //$messages = Message::all();
         $username = Auth::user()->name;
-        $token = Auth::user()->remember_token;
-
+        $token = Auth::user()->token;
 
         $users = DB::table('users')
             ->select('name')
@@ -39,7 +38,7 @@ class HomeController extends Controller
             ->get();
         $type = Auth::user()->type;
 
-        return view('home', compact('messages','username','token', 'users', 'type'));
+        return view('home', compact('username','token', 'users', 'type'));
     }
 
     public function postMessage(Request $request)

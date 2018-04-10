@@ -3,9 +3,11 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Str;
 
-class CreateMessagesTable extends Migration
+class AddTokenUsersTable extends Migration
 {
+    protected $random = str_random(20);
     /**
      * Run the migrations.
      *
@@ -13,12 +15,8 @@ class CreateMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('messages', function (Blueprint $table) {
-            $table->increments('id_msg');
-            $table->integer('id_user')->unsigned();
-            $table->string('name');
-            $table->text('message', 200)->nullable();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('token')->default()->unique();
         });
     }
 
@@ -29,6 +27,8 @@ class CreateMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('messages');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('token');
+        });
     }
 }
