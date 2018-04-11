@@ -31,15 +31,9 @@ class HomeController extends Controller
         $username = Auth::user()->name;
         $token = Auth::user()->token;
 
-        $users = DB::table('users')
-            ->select('name','token')
-            ->offset(1)
-            ->limit(100000)
-            ->get();
-
         $type = Auth::user()->type;
 
-        return view('home', compact('username','token', 'users', 'type'));
+        return view('home', compact('username','token', 'type'));
     }
 
 //    public function postMessage(Request $request)

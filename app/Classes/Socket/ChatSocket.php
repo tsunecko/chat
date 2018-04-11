@@ -11,6 +11,7 @@ namespace App\Classes\Socket;
 use App\Classes\Socket\BaseSocket;
 use App\Classes\User;
 use Ratchet\ConnectionInterface;
+use Illuminate\Support\Facades\DB;
 
 class ChatSocket extends BaseSocket
 {
@@ -50,6 +51,22 @@ class ChatSocket extends BaseSocket
                     'names' => $names,
                 ],
             ]));
+        }
+
+        // send to admin all users
+
+        $users = DB::table('users')
+            ->select('name','token')
+            ->paginate();
+        //dump($users);
+
+        foreach ($this->clients as $client) {
+            if ($client->user->type === 'admin') {
+                $client->send(json_encode([
+                    'type' => 'allusers',
+                    'users' => $users,
+                ]));
+            }
         }
 
         echo "New connection! ({$conn->resourceId})\n";

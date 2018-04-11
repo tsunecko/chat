@@ -64,14 +64,6 @@
 
         let user = @json($username);
 
-        // show all registrated users
-        let allusers = @json($users);
-        for ( let user of allusers) {
-            $('#allusers').append($('<span id="allusersnames" class="btn btn-default">' + user.name +
-                ' <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs mute" data-name="' + user.name + '" data-token="' + user.token +
-                '"></button> <button type="button" class="glyphicon glyphicon-remove-circle btn-danger btn-xs ban" data-name="' + user.name + '" data-token="' + user.token + '"></button></span>  '));
-        }
-
         window.onload = function () {
 
 
@@ -137,6 +129,21 @@
                 let data = JSON.parse(event.data);
 
                 switch (data.type) {
+
+
+                    case 'allusers':
+                        if ($('#allusers')) {
+                            $('#allusers').empty();       //clear area after every update
+                        }
+                        console.log('---', data.type);
+                        let users = data.users.data;
+                        console.log('---', users);
+                        for ( let user of users) {
+                            $('#allusers').append($('<span id="allusersnames" class="btn btn-default">' + user.name +
+                                ' <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs mute" data-name="' + user.name + '" data-token="' + user.token +
+                                '"></button> <button type="button" class="glyphicon glyphicon-remove-circle btn-danger btn-xs ban" data-name="' + user.name + '" data-token="' + user.token + '"></button></span>  '));
+                        }
+                        break;
 
 
                     case 'userlist':
