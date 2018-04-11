@@ -19,7 +19,7 @@ class FirstUserTableSeeder extends Seeder
             'type' => ('admin'),
             'isbaned' => ('false'),
             'ismuted' => ('false'),
-            'token' => (new Token())->Unique('users', 'token', 60),
+            'token' => (new Token())->Unique('users', 'token', 40),
             ]);
     }
 }

@@ -6,7 +6,6 @@ use App\Classes\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Dirape\Token\Token;
 
 class RegisterController extends Controller
 {
@@ -63,15 +62,14 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $token = new Token();
-        $new_token = $token->Unique('users', 'token', 60);
+        //$token = ;
 
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
             'type' => User::DEFAULT_TYPE,
-            'token' => $new_token,
+            'token' => str_random(40),
         ]);
     }
 }
