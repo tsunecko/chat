@@ -11,7 +11,6 @@ namespace App\Classes\Socket;
 use App\Classes\Socket\BaseSocket;
 use App\Classes\User;
 use Ratchet\ConnectionInterface;
-use Illuminate\Support\Facades\Auth;
 
 class ChatSocket extends BaseSocket
 {
@@ -28,14 +27,11 @@ class ChatSocket extends BaseSocket
         // get user`s token from current session
         $t = $conn->httpRequest->getUri()->getQuery();
 
-        // find user in db and check banned status
         $user = User::where(['token' => $t])->first();
-        dump($user);
         if (!$user || $user->isbaned === 'true') {
             $conn->close();
         }
 
-        // store current user in current connection
         $conn->user = $user;
 
         // Store the new connection to send messages to later
@@ -45,7 +41,6 @@ class ChatSocket extends BaseSocket
         foreach ($this->clients as $client) {
             $names[] = $client->user->name;
         }
-        //dump($names);
 
         // send to new user current user list
         foreach ($this->clients as $client) {
@@ -75,10 +70,8 @@ class ChatSocket extends BaseSocket
 
         switch ($data['type']) {
 
-
             //send text message to each client connected
             case 'message':
-                //find user
                 $token = $data['token'];
                 $user = User::where(['token' => $token])->first();
 
@@ -90,6 +83,7 @@ class ChatSocket extends BaseSocket
                             'type' => 'message',
                             'user' => $data['user'],
                             'text' => $data['text'],
+                            'token' => $data['token'],
                         ]));
                     }
                     break;
@@ -98,16 +92,22 @@ class ChatSocket extends BaseSocket
             // send message when user online
             case 'online_into_chat':
                 foreach ($this->clients as $client) {
+
                     $client->send(json_encode([
                         'type' => 'online_into_chat',
                         'islogin' => $data['islogin'],
                     ]));
+
+                    if ($client->user->ismuted === 'true') {
+                        $client->send(json_encode([
+                                'type' => 'stillMuted',
+                            ]
+                        ));
+                    }
                 }
                 break;
 
-            //mute
             case 'mute':
-                //find user
                 $token = $data['token'];
                 $user = User::where(['token' => $token]);
 
@@ -115,16 +115,14 @@ class ChatSocket extends BaseSocket
                 foreach ($this->clients as $client) {
                     $client->send(json_encode([
                         'type' => 'mute',
-                        'user' => $data['user'],
+                        'name' => $data['user'],
+                        'token' => $data['token'],
                     ]));
                 }
-                //set mute into Users table
                 $user->update(['ismuted'=>'true']);
                 break;
 
-            //ban
             case 'ban':
-                //find user
                 $token = $data['token'];
                 $user = User::where(['token' => $token]);
 
@@ -132,10 +130,10 @@ class ChatSocket extends BaseSocket
                 foreach ($this->clients as $client) {
                     $client->send(json_encode([
                         'type' => 'ban',
-                        'user' => $data['user'],
+                        'name' => $data['user'],
+                        'token' => $data['token'],
                     ]));
                 }
-                //set ban into Users table
                 $user->update(['isbaned'=>'true']);
                 break;
         }

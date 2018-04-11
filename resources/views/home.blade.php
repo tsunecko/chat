@@ -12,7 +12,6 @@
                         <form name="messages" id="messages" action="/chat/message" method="post">
                             {{ csrf_field() }}
 
-                            {{--show all users only for admin--}}
                             @if ( $type  === 'admin' )
                             <div class="form-group">
                                 <label for="allusers">All users:</label>
@@ -59,21 +58,18 @@
     </script>
 
     <script>
-        //let csrfToken = document.head.querySelector('meta[name="csrf-token"]').content
+
         let token = @json($token);
         let socket = new WebSocket('ws://localhost:8080?{{ $token }}');
 
         let user = @json($username);
 
-        //show all users with buttons
+        // show all registrated users
         let allusers = @json($users);
         for ( let user of allusers) {
-
-            //TODO кнопка размут
-
             $('#allusers').append($('<span id="allusersnames" class="btn btn-default">' + user.name +
-                ' <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs mute" data-user="' + user.name +
-                '"></button> <button type="button" class="glyphicon glyphicon-remove-circle btn-danger btn-xs ban" data-user="' + user.name + '"></button></span>  '));
+                ' <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs mute" data-name="' + user.name + '" data-token="' + user.token +
+                '"></button> <button type="button" class="glyphicon glyphicon-remove-circle btn-danger btn-xs ban" data-name="' + user.name + '" data-token="' + user.token + '"></button></span>  '));
         }
 
         window.onload = function () {
@@ -81,41 +77,38 @@
 
             //listener - if button clicked - apply the function mute
             $("#allusers").on("click", ".mute", function () {
-                let user = $(this).data('user');    //get data from button object
-                console.log('--- mute', user)
-                mute(user);                         //apply function to button
+                let name = $(this).data('name');
+                let token = $(this).data('token');
+                console.log('--- mute', token, name);
+                mute(token, name);                         //apply function to button
             });
 
             //listener - if button clicked - apply the function ban
             $("#allusers").on("click", ".ban", function () {
-                let user = $(this).data('user');    //get data from button object
-                console.log('--- ban', user)
-                ban(user);                          //apply function to button
+                let name = $(this).data('name');
+                let token = $(this).data('token');
+                console.log('--- ban', token, name);
+                ban(token, name);                          //apply function to button
             });
 
             //listener - if button clicked - apply the function sendmsg
             $("#messages").on("click", ".sendmsg", function () {
-
                 let past = localStorage.getItem('sendDate');
-                // check if message is longer than 200 letters
                 if( $("#msg").val().length >= 200) {
                     $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Your message is longer than 200 letters!<br>'));
                 }
-                //check if sendDate exist and passed less 15 sec
                 else if ((new Date - past)/1000 <= 15) {
                     $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Left ' + (15 -(new Date - past)/1000).toFixed(2) + ' sec for sending next message<br>'));
                 } else {
-                    // store sending message time
                     let sendDate = Date.now();
                     localStorage.setItem('sendDate', sendDate);
-                    // apply func sendmsg
                     console.log('--- msg', user)
                     sendmsg();                          //apply function to button
                 }
             });
 
 
-            //open connection
+
             socket.onopen = function (event) {
 
                 //send json into back when user online
@@ -127,7 +120,7 @@
             };
 
 
-            //close connection
+
             socket.onclose = function (event) {
                 if (event.wasClean) {
                     $('#chat').append($('<span>').css('font-style','italic').css('color','#A9A9A9').html('Connection close'));
@@ -138,14 +131,14 @@
             }
 
 
-            //get data from back
+
             socket.onmessage = function (event) {
 
                 let data = JSON.parse(event.data);
 
                 switch (data.type) {
 
-                    //send current online users to all users
+
                     case 'userlist':
                         console.log(data.list.names);
                         if ($('onlinenames')) {
@@ -156,46 +149,52 @@
                         }
                         break;
 
-                    //print into chat user is online
+
                     case 'online_into_chat':
                         $('#chat').append(
                             $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.islogin + ' is online<br>'));
                         break;
 
-                    //print message into chat
+
                     case 'message':
                         $('#chat').append(
                             '<span style="color:' + randcolor() + '; font-weight: bold">' + data.user + '</span>: ' + data.text + '<br>'
                         );
                         break;
 
-                    //print into chat user is offline
+
                     case 'offline_into_chat':
                         $('#chat').append(
                             $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.islogout + ' is offline<br>'));
                         break;
 
-                    //mute
+
                     case 'mute':
-                        if(data.user === user) {
+                        if(data.token === token) {
                             $('#chat').append($('<span>').css('color','#8B0000').css('font-weight','700').html('You are muted!<br>'));
+                            $('#sendmsg').attr('disabled','disabled');
                         }
                         $('#chat').append(
-                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.user + ' is muted<br>'));
+                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.name + ' is muted<br>'));
                         break;
 
-                    //ban
+
+                    case 'stillMuted':
+                        $('#sendmsg').attr('disabled','disabled');
+                        break;
+
+
                     case 'ban':
-                        if(data.user === user) {
+                        if(data.token === token) {
                             window.location.href = '/logout';
                         }
                         $('#chat').append(
-                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.user + ' is baned<br>'));
+                            $('<span>').css('font-style','italic').css('color','#A9A9A9').html(data.name + ' is baned<br>'));
                         break;
                 }
             };
 
-            //errors
+
             socket.onerror = function (event) {
                 $('#chat').append(
                     $('<span>').html('Error: ' + event.message + '<br>'));
@@ -203,7 +202,7 @@
 
         }
 
-        //get random color
+
         function randcolor() {
             let r = Math.floor(Math.random() * (246));
             let g = Math.floor(Math.random() * (246));
@@ -213,10 +212,10 @@
         }
 
         //mute after press icon
-        function mute(user) {
+        function mute(token, name) {
             let message = {
                 type: 'mute',
-                user: user,
+                user: name,
                 token: token,
             };
             socket.send(JSON.stringify(message));
@@ -225,10 +224,10 @@
 
 
         //ban after press icon
-        function ban(user) {
+        function ban(token, name) {
             let message = {
                 type: 'ban',
-                user: user,
+                user: name,
                 token: token,
             };
             socket.send(JSON.stringify(message));
