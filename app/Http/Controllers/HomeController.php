@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-//use App\Classes\Message;
-//use App\Events\NewMessageAdded;
+//use App\Http\Middleware\IsBanned;
 
 class HomeController extends Controller
 {
@@ -18,6 +16,7 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('isbanned');
     }
 
     /**
@@ -27,21 +26,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        //$messages = Message::all();
-        $username = Auth::user()->name;
         $token = Auth::user()->token;
-
         $type = Auth::user()->type;
+        $id = Auth::user()->id;
 
-        return view('home', compact('username','token', 'type'));
+        return view('home', compact('token', 'type', 'id'));
     }
-
-//    public function postMessage(Request $request)
-//    {
-//        $message = Message::create($request->all());
-//        event(
-//            new NewMessageAdded($message)
-//        );
-//        return redirect()->back();
-//    }
 }

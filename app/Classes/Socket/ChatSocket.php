@@ -10,8 +10,8 @@ namespace App\Classes\Socket;
 
 use App\Classes\Socket\BaseSocket;
 use App\Classes\User;
+use Illuminate\Support\Facades\Log;
 use Ratchet\ConnectionInterface;
-use Illuminate\Support\Facades\DB;
 
 class ChatSocket extends BaseSocket
 {
@@ -27,49 +27,59 @@ class ChatSocket extends BaseSocket
 
         // get user`s token from current session
         $t = $conn->httpRequest->getUri()->getQuery();
-
         $user = User::where(['token' => $t])->first();
         if (!$user || $user->isbaned === 'true') {
             $conn->close();
         }
-
         $conn->user = $user;
-
-        // Store the new connection to send messages to later
         $this->clients->attach($conn);
 
-        //get all users online
+
+
+
+
+
+
+        //get all users online and send userlist
         foreach ($this->clients as $client) {
             $names[] = $client->user->name;
         }
-
-        // send to new user current user list
-        foreach ($this->clients as $client) {
-            $client->send(json_encode([
+        $this->sendAll([
                 'type' => 'userlist',
-                'list' => [
-                    'names' => $names,
-                ],
+                'names' => $names,
+        ]);
+
+        //block button if user is muted
+        if ($user->ismuted === "true"){
+            dump($user->ismuted);
+            $conn->send(json_encode([
+                'type'=>'stillMuted',
             ]));
         }
 
+
+
+
+
+
+
         // send to admin all users
-
-        $users = DB::table('users')
-            ->select('name','token')
-            ->paginate();
-        //dump($users);
-
-        foreach ($this->clients as $client) {
-            if ($client->user->type === 'admin') {
-                $client->send(json_encode([
-                    'type' => 'allusers',
-                    'users' => $users,
-                ]));
-            }
+        if ($user->type === 'admin') {
+            $conn->send(json_encode([
+                'type' => 'allusers',
+                'users' => User::all('name','id'),
+            ]));
         }
 
-        echo "New connection! ({$conn->resourceId})\n";
+        Log::info('99999');
+        // send message into chat when user online
+        $this->sendAll([
+
+            'type' => 'online_into_chat',
+            'name' => $conn->user->name,
+        ]);
+
+        echo "{$conn->user->name } connected! ({$conn->resourceId})\n";
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
@@ -83,107 +93,76 @@ class ChatSocket extends BaseSocket
         if (!isset($data['type'])) {
             return;
         }
-        dump($data['type']);
 
         switch ($data['type']) {
 
             //send text message to each client connected
             case 'message':
-                $token = $data['token'];
-                $user = User::where(['token' => $token])->first();
-
-                if ($user->ismuted === 'true') {
+                if ($from->user->ismuted === 'true') {
                     break;
                 } else {
-                    foreach ($this->clients as $client) {
-                        $client->send(json_encode([
+                    $this->sendAll([
                             'type' => 'message',
-                            'user' => $data['user'],
+                            'user' => $from->user->name,
                             'text' => $data['text'],
-                            'token' => $data['token'],
-                        ]));
-                    }
+                        ]);
                     break;
                 }
 
             // send message when user online
             case 'online_into_chat':
-                foreach ($this->clients as $client) {
-
-                    $client->send(json_encode([
+                $this->sendAll([
                         'type' => 'online_into_chat',
-                        'islogin' => $data['islogin'],
-                    ]));
-
-                    if ($client->user->ismuted === 'true') {
-                        $client->send(json_encode([
-                                'type' => 'stillMuted',
-                            ]
-                        ));
-                    }
-                }
+                        'name' => $from->user->name,
+                    ]);
                 break;
 
             case 'mute':
-                $token = $data['token'];
-                $user = User::where(['token' => $token]);
-
-                //send message into chat
-                foreach ($this->clients as $client) {
-                    $client->send(json_encode([
+                dump($from->user->type);
+                if ($from->user->type === 'admin'){
+                    $this->sendAll([
                         'type' => 'mute',
                         'name' => $data['user'],
-                        'token' => $data['token'],
-                    ]));
+                        //'id' => $from->user->id,
+                        //'id' => $from->user->id,
+                        'id' => $data['id'],
+                    ]);
+                    User::where('id', $data['id'])->update(['ismuted'=>'true']);
                 }
-                $user->update(['ismuted'=>'true']);
                 break;
 
             case 'ban':
-                $token = $data['token'];
-                $user = User::where(['token' => $token]);
-
-                //send message into chat
-                foreach ($this->clients as $client) {
-                    $client->send(json_encode([
+                if ($from->user->type === 'admin'){
+                    $this->sendAll([
                         'type' => 'ban',
                         'name' => $data['user'],
-                        'token' => $data['token'],
-                    ]));
+                        'id' => $data['id'],
+                        //'id' => $data['id'],
+                        ]);
+                User::where('id', $data['id'])->update(['isbaned'=>'true']);
                 }
-                $user->update(['isbaned'=>'true']);
                 break;
         }
     }
 
     public function onClose(ConnectionInterface $conn)
     {
-
-        // The connection is closed, remove it, as we can no longer send it messages
         $this->clients->detach($conn);
 
         // send message into chat when user offline
-        foreach ($this->clients as $client) {
-            $client->send(json_encode([
+        $this->sendAll([
                 'type' => 'offline_into_chat',
-                'islogout' => $conn->user->name,
-            ]));
-        }
+                'name' => $conn->user->name,
+            ]);
 
-        //get all users online
+        //get all users online and send userlist
         foreach ($this->clients as $client) {
             $names[] = $client->user->name;
         }
-
-        // send to new user current user list
-        foreach ($this->clients as $client) {
-            $client->send(json_encode([
+        $this->sendAll([
                 'type' => 'userlist',
-                'list' => [
-                    'names' => $names,
-                ],
-            ]));
-        }
+                'names' => $names,
+            ]);
 
         echo "Connection {$conn->resourceId} has disconnected\n";
     }
@@ -193,5 +172,11 @@ class ChatSocket extends BaseSocket
         echo "An error has occurred: {$e->getMessage()}\n";
 
         $conn->close();
+    }
+
+    protected function sendAll($data){
+        foreach ($this->clients as $client) {
+            $client->send(json_encode($data));
+        }
     }
 }
