@@ -16,9 +16,7 @@ class FirstUserTableSeeder extends Seeder
             'name' => str_random(8),
             'email' => str_random(12).'@gmail.com',
             'password' => bcrypt('testchat'),
-            'type' => ('admin'),
-            'isbaned' => ('false'),
-            'ismuted' => ('false'),
+            'admin' => (1),
             'token' => (new Token())->Unique('users', 'token', 40),
             ]);
     }

@@ -14,7 +14,7 @@ class AddAdminUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('type')->default('default');
+            $table->enum('admin', [1, 0])->default(0);
         });
     }
 
@@ -26,7 +26,7 @@ class AddAdminUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('type');
+            $table->dropColumn('admin');
         });
     }
 }

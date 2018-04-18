@@ -14,8 +14,8 @@ class AddIsbanedIsmutedUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('isbaned', ['true', 'false'])->default('false');
-            $table->enum('ismuted', ['true', 'false'])->default('false');
+            $table->enum('isbaned', [1, 0])->default(0);
+            $table->enum('ismuted', [1, 0])->default(0);
         });
     }
 
