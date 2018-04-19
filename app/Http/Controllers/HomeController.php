@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-//use App\Http\Middleware\IsBanned;
 
 class HomeController extends Controller
 {

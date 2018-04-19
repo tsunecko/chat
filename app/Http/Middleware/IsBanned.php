@@ -15,11 +15,9 @@ class IsBanned
      */
     public function handle($request, Closure $next)
     {
-//        if(auth()->user()->isbanned=='false') {
-            return $next($request);
-//        }
-
-//        return redirect()->guest('/');
-//        return redirect('/');
+        if(auth()->user()->isbaned=='1') {
+            return redirect('/logout');
+        }
+        return $next($request);
     }
 }

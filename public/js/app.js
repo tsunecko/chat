@@ -43124,7 +43124,7 @@ exports = module.exports = __webpack_require__(41)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\ndiv.italics{\n    font-style: italic;\n    color: #A9A9A9;\n}\ndiv.cloud{\n    background: #d9edf7;\n    padding: 10px;\n    margin: 10px 0px;\n    border-radius: 10px;\n}\nspan.name{\n    font-weight: bold;\n}\n", ""]);
 
 // exports
 
@@ -43644,6 +43644,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 var token = null;
@@ -43671,18 +43678,21 @@ var socket = null;
             switch (data.type) {
                 case 'online':
                     _this.messages.push({
+                        type: 'italics',
                         name: data.name,
                         text: 'is online'
                     });
                     break;
                 case 'offline':
                     _this.messages.push({
+                        type: 'italics',
                         name: data.name,
                         text: 'is offline'
                     });
                     break;
                 case 'message':
                     _this.messages.push({
+                        type: 'cloud',
                         name: data.name + ':',
                         text: data.text
                     });
@@ -43750,12 +43760,14 @@ var socket = null;
                     break;
                 case 'mute':
                     _this.messages.push({
+                        type: 'italics',
                         name: data.name,
                         text: 'is muted'
                     });
                     break;
                 case 'unmute':
                     _this.messages.push({
+                        type: 'italics',
                         name: data.name,
                         text: 'is unmuted'
                     });
@@ -43765,12 +43777,14 @@ var socket = null;
                         window.location.href = '/logout';
                     }
                     _this.messages.push({
+                        type: 'italics',
                         name: data.name,
                         text: 'is banned'
                     });
                     break;
                 case 'unban':
                     _this.messages.push({
+                        type: 'italics',
                         name: data.name,
                         text: 'is unbanned'
                     });
@@ -43788,7 +43802,9 @@ var socket = null;
             online: [],
             users: [],
             name: $('.dropdown-toggle').text().trim(),
-            newMessage: ''
+            newMessage: '',
+            cloud: true,
+            italics: true
         };
     },
 
@@ -43812,6 +43828,13 @@ var socket = null;
                 type: 'ban',
                 id: id
             }));
+        },
+        randomColor: function randomColor() {
+            var r = Math.floor(Math.random() * 246);
+            var g = Math.floor(Math.random() * 246);
+            var b = Math.floor(Math.random() * 246);
+            var color = '#' + r.toString(16) + g.toString(16) + b.toString(16);
+            return color;
         }
     }
 });
@@ -43845,7 +43868,31 @@ var render = function() {
                 _vm._v(" "),
                 _vm._l(_vm.messages, function(msg, i) {
                   return _c("div", { key: i }, [
-                    _vm._v(_vm._s(msg.name) + " " + _vm._s(msg.text))
+                    msg.type === "italics"
+                      ? _c("div", { class: { italics: _vm.italics } }, [
+                          _vm._v(
+                            "\n                                    " +
+                              _vm._s(msg.name) +
+                              " " +
+                              _vm._s(msg.text) +
+                              "\n                                "
+                          )
+                        ])
+                      : _c("div", { class: { cloud: _vm.cloud } }, [
+                          _c(
+                            "span",
+                            {
+                              staticClass: "name",
+                              style: { color: _vm.randomColor() }
+                            },
+                            [_vm._v(_vm._s(msg.name))]
+                          ),
+                          _vm._v(
+                            " " +
+                              _vm._s(msg.text) +
+                              "\n                                "
+                          )
+                        ])
                   ])
                 })
               ],
@@ -43901,7 +43948,7 @@ var render = function() {
                   _vm._l(_vm.users, function(user, i) {
                     return _c("div", { key: i }, [
                       _vm._v(
-                        _vm._s(user.name) + "\n                                "
+                        _vm._s(user.name) + "\n                            "
                       ),
                       _c("button", {
                         staticClass:
