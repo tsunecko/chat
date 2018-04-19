@@ -29,8 +29,8 @@
 
                             <div class="form-group">
                                 <div v-for="(user, i) in users" :key="i">{{user.name}}
-                                    <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs" v-on:click="muteHandler(user.name, user.id)"></button>
-                                    <button type="button" class="glyphicon glyphicon-remove btn-xs btn-danger" v-on:click="banHandler(user.name, user.id)"></button>
+                                    <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs" v-on:click="muteHandler(user.id)"></button>
+                                    <button type="button" class="glyphicon glyphicon-remove btn-xs btn-danger" v-on:click="banHandler(user.id)"></button>
                                 </div>
                             </div>
 
@@ -82,26 +82,26 @@
                         case('online'):
                             this.messages.push({
                                 name: data.name,
-                                text: 'is online'
+                                text: 'is online',
                             });
                             break;
                         case('offline'):
                             this.messages.push({
                                 name: data.name,
-                                text: 'is offline'
+                                text: 'is offline',
                             });
                             break;
                         case('message'):
                             this.messages.push({
                                 name: data.name + ':',
-                                text: data.text
+                                text: data.text,
                             });
                             break;
                         case('userlist'):
                             this.online = [];
                             for (let user of data.names) {
                                 this.online.push({
-                                    name: user
+                                    name: user,
                                 });
                             }
                             break;
@@ -117,16 +117,28 @@
                         case('mute'):
                             this.messages.push({
                                 name: data.name,
-                                text: 'is muted'
+                                text: 'is muted',
+                            });
+                            break;
+                        case('unmute'):
+                            this.messages.push({
+                                name: data.name,
+                                text: 'is unmuted',
                             });
                             break;
                         case('ban'):
-                            if(data.name === $('.dropdown-toggle').text()) {
+                            if(data.name === this.name) {
                                 window.location.href = '/logout';
                             }
                             this.messages.push({
                                 name: data.name,
-                                text: 'is banned'
+                                text: 'is banned',
+                            });
+                            break;
+                        case('unban'):
+                            this.messages.push({
+                                name: data.name,
+                                text: 'is unbanned',
                             });
                             break;
                     }
@@ -142,7 +154,7 @@
                     messages: [],
                     online: [],
                     users: [],
-                    name: $('.dropdown-toggle').text(),
+                    name: $('.dropdown-toggle').text().trim(),
                     newMessage: '',
                 }
             },
@@ -151,24 +163,20 @@
                 newMessageHandler () {
                     socket.send(JSON.stringify({
                         type: 'message',
-                        text: this.newMessage
+                        text: this.newMessage,
                     }));
                     this.newMessage = '';
                 },
-                muteHandler (name, id) {
-                    console.log("---", name, id);
+                muteHandler (id) {
                     socket.send(JSON.stringify({
                         type: 'mute',
-                        name: name,
-                        id: id
+                        id: id,
                     }));
                 },
-                banHandler (name, id) {
-                    console.log("---", name, id);
+                banHandler (id) {
                     socket.send(JSON.stringify({
                         type: 'ban',
-                        name: name,
-                        id: id
+                        id: id,
                     }));
                 },
             },

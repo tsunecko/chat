@@ -43124,7 +43124,7 @@ exports = module.exports = __webpack_require__(41)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -43754,13 +43754,25 @@ var socket = null;
                         text: 'is muted'
                     });
                     break;
+                case 'unmute':
+                    _this.messages.push({
+                        name: data.name,
+                        text: 'is unmuted'
+                    });
+                    break;
                 case 'ban':
-                    if (data.name === $('.dropdown-toggle').text()) {
+                    if (data.name === _this.name) {
                         window.location.href = '/logout';
                     }
                     _this.messages.push({
                         name: data.name,
                         text: 'is banned'
+                    });
+                    break;
+                case 'unban':
+                    _this.messages.push({
+                        name: data.name,
+                        text: 'is unbanned'
                     });
                     break;
             }
@@ -43775,7 +43787,7 @@ var socket = null;
             messages: [],
             online: [],
             users: [],
-            name: $('.dropdown-toggle').text(),
+            name: $('.dropdown-toggle').text().trim(),
             newMessage: ''
         };
     },
@@ -43789,19 +43801,15 @@ var socket = null;
             }));
             this.newMessage = '';
         },
-        muteHandler: function muteHandler(name, id) {
-            console.log("---", name, id);
+        muteHandler: function muteHandler(id) {
             socket.send(JSON.stringify({
                 type: 'mute',
-                name: name,
                 id: id
             }));
         },
-        banHandler: function banHandler(name, id) {
-            console.log("---", name, id);
+        banHandler: function banHandler(id) {
             socket.send(JSON.stringify({
                 type: 'ban',
-                name: name,
                 id: id
             }));
         }
@@ -43901,7 +43909,7 @@ var render = function() {
                         attrs: { type: "button" },
                         on: {
                           click: function($event) {
-                            _vm.muteHandler(user.name, user.id)
+                            _vm.muteHandler(user.id)
                           }
                         }
                       }),
@@ -43912,7 +43920,7 @@ var render = function() {
                         attrs: { type: "button" },
                         on: {
                           click: function($event) {
-                            _vm.banHandler(user.name, user.id)
+                            _vm.banHandler(user.id)
                           }
                         }
                       })
