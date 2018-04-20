@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'admin', 'token'
+        'name', 'password', 'admin', 'token'
     ];
 
     /**
@@ -24,21 +24,6 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'remember_token',
     ];
-
-
-
-    /**
-     *
-     *
-     * Create user with admin roots.
-     *
-     *
-     *
-     */
-
-    public function isAdmin() {
-        return $this->admin === self::ADMIN_TYPE;
-    }
 }

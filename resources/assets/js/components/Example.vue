@@ -13,16 +13,16 @@
                             <label>Messages:</label>
                             <div v-for="(msg, i) in messages" :key="i">
                                 <div v-if="msg.type === 'italics'" v-bind:class="{italics:italics}">
-                                        {{msg.name}} {{msg.text}}
-                                    </div>
-                                <div v-else="msg.type === 'cloud'" v-bind:class="{cloud:cloud}">
-                                        <span class="name" v-bind:style="{color: randomColor()}">{{msg.name}}</span> {{msg.text}}
-                                    </div>
+                                    {{msg.name}} {{msg.text}}
+                                </div>
+                                <div v-else-if="msg.type === 'cloud'" v-bind:class="{cloud:cloud, youreMsg:youreMsg}">
+                                    <span class="name" v-bind:style="{color: randomColor()}">{{msg.name}}</span> {{msg.text}}
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <textarea class="form-control rounded-0" v-model="newMessage" @keyup.enter="newMessageHandler"></textarea>
+                            <textarea class="form-control rounded-0" v-model="newMessage" @keyup.enter="newMessageHandler" placeholder="type here"></textarea>
                         </div>
 
                     </div>
@@ -36,15 +36,15 @@
 
                         <div class="form-group">
                             <div v-for="(user, i) in users" :key="i">{{user.name}}
-                                <button type="button" class="glyphicon glyphicon-volume-off btn-warning btn-xs" @click="muteHandler(user.id)"></button>
-                                <button type="button" class="glyphicon glyphicon-remove btn-xs btn-danger" @click="banHandler(user.id)"></button>
+                                <div class="mute" @click="muteHandler(user.id)">M</div>
+                                <div class="ban" @click="banHandler(user.id)">B</div>
                             </div>
                         </div>
 
                     </div>
                 </div>
 
-                <div class="panel panel-info">
+                <div class="panel panel-info" v-if="currentUser.admin === '0'">
                     <div class="panel-heading">Users online:</div>
                     <div class="panel-body">
 
@@ -125,6 +125,9 @@
                         }
                         break;
                     case('mute'):
+                        if(data.name === this.name) {
+                            alert('muted!');
+                        }
                         this.messages.push({
                             type: 'italics',
                             name: data.name,
@@ -139,9 +142,9 @@
                         });
                         break;
                     case('ban'):
-                        if(data.name === this.name) {
-                            window.location.href = '/logout';
-                        }
+                        // if(data.name === this.name) {
+                        //     window.location.href = '/logout';
+                        // }
                         this.messages.push({
                             type: 'italics',
                             name: data.name,
@@ -172,6 +175,8 @@
                 newMessage: '',
                 cloud: true,
                 italics: true,
+                youreMsg: true,
+                aliensMsg: true,
             }
         },
 
@@ -214,12 +219,40 @@
         color: #A9A9A9;
     }
     div.cloud{
-        background: #d9edf7;
         padding: 10px;
-        margin: 10px 0px;
+        margin: 5px 0px;
         border-radius: 10px;
+        display: inline-block;
     }
     span.name{
         font-weight: bold;
+    }
+    div.mute{
+        width: 20px;
+        height: 20px;
+        background: #FFA500;
+        border-radius: 5px;
+        display: inline-block;
+        text-align: center;
+        color: #FFFFFF;
+        font-weight: bold;
+        cursor: default;
+    }
+    div.ban{
+        width: 20px;
+        height: 20px;
+        background: #FF4500;
+        border-radius: 5px;
+        display: inline-block;
+        text-align: center;
+        color: #FFFFFF;
+        font-weight: bold;
+        cursor: default;
+    }
+    div.youreMsg{
+        background: #d9edf7;
+    }
+    div.aliensMsg{
+        background: #428bca;
     }
 </style>

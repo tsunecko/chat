@@ -14,7 +14,6 @@ class FirstUserTableSeeder extends Seeder
     {
         DB::table('users')->insert([
             'name' => str_random(8),
-            'email' => str_random(12).'@gmail.com',
             'password' => bcrypt('testchat'),
             'admin' => (1),
             'token' => (new Token())->Unique('users', 'token', 40),

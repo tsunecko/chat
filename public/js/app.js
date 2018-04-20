@@ -43124,7 +43124,7 @@ exports = module.exports = __webpack_require__(41)(false);
 
 
 // module
-exports.push([module.i, "\ndiv.italics{\n    font-style: italic;\n    color: #A9A9A9;\n}\ndiv.cloud{\n    background: #d9edf7;\n    padding: 10px;\n    margin: 10px 0px;\n    border-radius: 10px;\n}\nspan.name{\n    font-weight: bold;\n}\n", ""]);
+exports.push([module.i, "\ndiv.italics{\n    font-style: italic;\n    color: #A9A9A9;\n}\ndiv.cloud{\n    padding: 10px;\n    margin: 5px 0px;\n    border-radius: 10px;\n    display: inline-block;\n}\nspan.name{\n    font-weight: bold;\n}\ndiv.mute{\n    width: 20px;\n    height: 20px;\n    background: #FFA500;\n    border-radius: 5px;\n    display: inline-block;\n    text-align: center;\n    color: #FFFFFF;\n    font-weight: bold;\n    cursor: default;\n}\ndiv.ban{\n    width: 20px;\n    height: 20px;\n    background: #FF4500;\n    border-radius: 5px;\n    display: inline-block;\n    text-align: center;\n    color: #FFFFFF;\n    font-weight: bold;\n    cursor: default;\n}\ndiv.youreMsg{\n    background: #d9edf7;\n}\ndiv.aliensMsg{\n    background: #428bca;\n}\n", ""]);
 
 // exports
 
@@ -43759,6 +43759,9 @@ var socket = null;
 
                     break;
                 case 'mute':
+                    if (data.name === _this.name) {
+                        alert('muted!');
+                    }
                     _this.messages.push({
                         type: 'italics',
                         name: data.name,
@@ -43773,9 +43776,9 @@ var socket = null;
                     });
                     break;
                 case 'ban':
-                    if (data.name === _this.name) {
-                        window.location.href = '/logout';
-                    }
+                    // if(data.name === this.name) {
+                    //     window.location.href = '/logout';
+                    // }
                     _this.messages.push({
                         type: 'italics',
                         name: data.name,
@@ -43804,7 +43807,9 @@ var socket = null;
             name: $('.dropdown-toggle').text().trim(),
             newMessage: '',
             cloud: true,
-            italics: true
+            italics: true,
+            youreMsg: true,
+            aliensMsg: true
         };
     },
 
@@ -43871,28 +43876,39 @@ var render = function() {
                     msg.type === "italics"
                       ? _c("div", { class: { italics: _vm.italics } }, [
                           _vm._v(
-                            "\n                                    " +
+                            "\n                                " +
                               _vm._s(msg.name) +
                               " " +
                               _vm._s(msg.text) +
-                              "\n                                "
+                              "\n                            "
                           )
                         ])
-                      : _c("div", { class: { cloud: _vm.cloud } }, [
-                          _c(
-                            "span",
+                      : msg.type === "cloud"
+                        ? _c(
+                            "div",
                             {
-                              staticClass: "name",
-                              style: { color: _vm.randomColor() }
+                              class: {
+                                cloud: _vm.cloud,
+                                youreMsg: _vm.youreMsg
+                              }
                             },
-                            [_vm._v(_vm._s(msg.name))]
-                          ),
-                          _vm._v(
-                            " " +
-                              _vm._s(msg.text) +
-                              "\n                                "
+                            [
+                              _c(
+                                "span",
+                                {
+                                  staticClass: "name",
+                                  style: { color: _vm.randomColor() }
+                                },
+                                [_vm._v(_vm._s(msg.name))]
+                              ),
+                              _vm._v(
+                                " " +
+                                  _vm._s(msg.text) +
+                                  "\n                            "
+                              )
+                            ]
                           )
-                        ])
+                        : _vm._e()
                   ])
                 })
               ],
@@ -43910,6 +43926,7 @@ var render = function() {
                   }
                 ],
                 staticClass: "form-control rounded-0",
+                attrs: { placeholder: "type here" },
                 domProps: { value: _vm.newMessage },
                 on: {
                   keyup: function($event) {
@@ -43950,27 +43967,31 @@ var render = function() {
                       _vm._v(
                         _vm._s(user.name) + "\n                            "
                       ),
-                      _c("button", {
-                        staticClass:
-                          "glyphicon glyphicon-volume-off btn-warning btn-xs",
-                        attrs: { type: "button" },
-                        on: {
-                          click: function($event) {
-                            _vm.muteHandler(user.id)
+                      _c(
+                        "div",
+                        {
+                          staticClass: "mute",
+                          on: {
+                            click: function($event) {
+                              _vm.muteHandler(user.id)
+                            }
                           }
-                        }
-                      }),
+                        },
+                        [_vm._v("M")]
+                      ),
                       _vm._v(" "),
-                      _c("button", {
-                        staticClass:
-                          "glyphicon glyphicon-remove btn-xs btn-danger",
-                        attrs: { type: "button" },
-                        on: {
-                          click: function($event) {
-                            _vm.banHandler(user.id)
+                      _c(
+                        "div",
+                        {
+                          staticClass: "ban",
+                          on: {
+                            click: function($event) {
+                              _vm.banHandler(user.id)
+                            }
                           }
-                        }
-                      })
+                        },
+                        [_vm._v("B")]
+                      )
                     ])
                   })
                 )
@@ -43978,21 +43999,23 @@ var render = function() {
             ])
           : _vm._e(),
         _vm._v(" "),
-        _c("div", { staticClass: "panel panel-info" }, [
-          _c("div", { staticClass: "panel-heading" }, [
-            _vm._v("Users online:")
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "panel-body" }, [
-            _c(
-              "div",
-              { staticClass: "form-group" },
-              _vm._l(_vm.online, function(user, id) {
-                return _c("div", { key: id }, [_vm._v(_vm._s(user.name))])
-              })
-            )
-          ])
-        ])
+        _vm.currentUser.admin === "0"
+          ? _c("div", { staticClass: "panel panel-info" }, [
+              _c("div", { staticClass: "panel-heading" }, [
+                _vm._v("Users online:")
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "panel-body" }, [
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  _vm._l(_vm.online, function(user, id) {
+                    return _c("div", { key: id }, [_vm._v(_vm._s(user.name))])
+                  })
+                )
+              ])
+            ])
+          : _vm._e()
       ])
     ])
   ])
