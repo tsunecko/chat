@@ -43651,10 +43651,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 var token = null;
 var socket = null;
+var id = null;
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 
@@ -43665,6 +43667,7 @@ var socket = null;
 
         console.log('Component mounted.');
         token = $('#token').text();
+        id = $('#id').text();
         socket = new WebSocket('ws://localhost:8080/?' + token);
 
         socket.onopen = function (event) {
@@ -43776,9 +43779,9 @@ var socket = null;
                     });
                     break;
                 case 'ban':
-                    // if(data.name === this.name) {
-                    //     window.location.href = '/logout';
-                    // }
+                    if (data.name === _this.name) {
+                        window.location.href = '/logout';
+                    }
                     _this.messages.push({
                         type: 'italics',
                         name: data.name,
@@ -43818,6 +43821,8 @@ var socket = null;
         newMessageHandler: function newMessageHandler() {
             socket.send(JSON.stringify({
                 type: 'message',
+                id: id,
+                name: this.name,
                 text: this.newMessage
             }));
             this.newMessage = '';
@@ -43867,6 +43872,12 @@ var render = function() {
             _vm._v(" "),
             _c(
               "div",
+              { staticStyle: { display: "none" }, attrs: { id: "id" } },
+              [_vm._v(_vm._s(_vm.currentUser.id))]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
               { staticClass: "form-group" },
               [
                 _c("label", [_vm._v("Messages:")]),
@@ -43883,32 +43894,27 @@ var render = function() {
                               "\n                            "
                           )
                         ])
-                      : msg.type === "cloud"
-                        ? _c(
-                            "div",
-                            {
-                              class: {
-                                cloud: _vm.cloud,
-                                youreMsg: _vm.youreMsg
-                              }
-                            },
-                            [
-                              _c(
-                                "span",
-                                {
-                                  staticClass: "name",
-                                  style: { color: _vm.randomColor() }
-                                },
-                                [_vm._v(_vm._s(msg.name))]
-                              ),
-                              _vm._v(
-                                " " +
-                                  _vm._s(msg.text) +
-                                  "\n                            "
-                              )
-                            ]
-                          )
-                        : _vm._e()
+                      : _c(
+                          "div",
+                          {
+                            class: { cloud: _vm.cloud, youreMsg: _vm.youreMsg }
+                          },
+                          [
+                            _c(
+                              "span",
+                              {
+                                staticClass: "name",
+                                style: { color: _vm.randomColor() }
+                              },
+                              [_vm._v(_vm._s(msg.name))]
+                            ),
+                            _vm._v(
+                              " " +
+                                _vm._s(msg.text) +
+                                "\n                            "
+                            )
+                          ]
+                        )
                   ])
                 })
               ],

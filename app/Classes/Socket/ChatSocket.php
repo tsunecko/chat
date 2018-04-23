@@ -26,7 +26,7 @@ class ChatSocket extends BaseSocket
         // get user`s token from current session
         $t = $conn->httpRequest->getUri()->getQuery();
         $user = User::where('token', $t)->first();
-        if (!$user || $user->isbaned === "1") {
+        if (!$user || $user->isbaned) {
             $conn->close();
         }
         $conn->user = $user;
@@ -56,6 +56,10 @@ class ChatSocket extends BaseSocket
         echo "{$conn->user->name } connected! ({$conn->resourceId})\n";
     }
 
+    /**
+     * @param ConnectionInterface $from
+     * @param string $msg
+     */
     public function onMessage(ConnectionInterface $from, $msg) {
         $numRecv = count($this->clients) - 1;
         echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
@@ -69,7 +73,8 @@ class ChatSocket extends BaseSocket
 
         switch ($data['type']) {
             case 'message':
-                if ($from->user->ismuted === "1") {
+                $user = User::where('name', $data['name']);
+                if ($user->value('ismuted')) {
                     break;
                 } else {
                     $this->sendAll([
@@ -105,6 +110,7 @@ class ChatSocket extends BaseSocket
                     } else {
                         $type = 'ban';
                         $user->update(['isbaned'=>"1"]);
+                        if ($from->user->id == $user->value('id')) $from->close();
                     }
                     $this->sendAll([
                         'type' => $type,

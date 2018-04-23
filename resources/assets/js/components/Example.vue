@@ -8,6 +8,7 @@
                     <div class="panel-body">
 
                         <div style="display:none" id="token">{{ currentUser.token }}</div>
+                        <div style="display:none" id="id">{{ currentUser.id }}</div>
 
                         <div class="form-group">
                             <label>Messages:</label>
@@ -15,7 +16,7 @@
                                 <div v-if="msg.type === 'italics'" v-bind:class="{italics:italics}">
                                     {{msg.name}} {{msg.text}}
                                 </div>
-                                <div v-else-if="msg.type === 'cloud'" v-bind:class="{cloud:cloud, youreMsg:youreMsg}">
+                                <div v-else="msg.type === 'cloud'" v-bind:class="{cloud:cloud, youreMsg:youreMsg}">
                                     <span class="name" v-bind:style="{color: randomColor()}">{{msg.name}}</span> {{msg.text}}
                                 </div>
                             </div>
@@ -36,8 +37,8 @@
 
                         <div class="form-group">
                             <div v-for="(user, i) in users" :key="i">{{user.name}}
-                                <div class="mute" @click="muteHandler(user.id)">M</div>
-                                <div class="ban" @click="banHandler(user.id)">B</div>
+                                <div class="mute" v-on:click="muteHandler(user.id)">M</div>
+                                <div class="ban" v-on:click="banHandler(user.id)">B</div>
                             </div>
                         </div>
 
@@ -66,6 +67,7 @@
 
     let token = null;
     let socket = null;
+    let id = null;
 
     export default {
 
@@ -75,6 +77,7 @@
 
             console.log('Component mounted.');
             token = $('#token').text();
+            id = $('#id').text();
             socket = new WebSocket(`ws://localhost:8080/?${token}`);
 
             socket.onopen = (event) => {
@@ -142,9 +145,9 @@
                         });
                         break;
                     case('ban'):
-                        // if(data.name === this.name) {
-                        //     window.location.href = '/logout';
-                        // }
+                        if(data.name === this.name) {
+                            window.location.href = '/logout';
+                        }
                         this.messages.push({
                             type: 'italics',
                             name: data.name,
@@ -184,6 +187,8 @@
             newMessageHandler () {
                 socket.send(JSON.stringify({
                     type: 'message',
+                    id: id,
+                    name: this.name,
                     text: this.newMessage,
                 }));
                 this.newMessage = '';
