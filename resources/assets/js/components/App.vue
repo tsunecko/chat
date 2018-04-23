@@ -2,28 +2,23 @@
     <div class="container">
 
         <div class="row">
+
             <div class="col-md-8 col-md-offset-1">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Chat</div>
                     <div class="panel-body">
-
                         <div style="display:none" id="token">{{ currentUser.token }}</div>
                         <div style="display:none" id="id">{{ currentUser.id }}</div>
+                        <div style="display:none" id="user">{{ currentUser.admin }}</div>
 
                         <div class="form-group">
                             <label>Messages:</label>
-                            <div v-for="(msg, i) in messages" :key="i">
-                                <div v-if="msg.type === 'italics'" v-bind:class="{italics:italics}">
-                                    {{msg.name}} {{msg.text}}
-                                </div>
-                                <div v-else="msg.type === 'cloud'" v-bind:class="{cloud:cloud, youreMsg:youreMsg}">
-                                    <span class="name" v-bind:style="{color: randomColor()}">{{msg.name}}</span> {{msg.text}}
-                                </div>
-                            </div>
+                            <chat :messages="messages"/>
+
                         </div>
 
                         <div class="form-group">
-                            <textarea class="form-control rounded-0" v-model="newMessage" @keyup.enter="newMessageHandler" placeholder="type here"></textarea>
+                            <new-msg v-on:send="addMsg"/>
                         </div>
 
                     </div>
@@ -31,30 +26,8 @@
             </div>
 
             <div class="col-md-2 col-sm-3 col-xs-6">
-                <div class="panel panel-info" v-if="currentUser.admin === '1'">
-                    <div class="panel-heading">All users:</div>
-                    <div class="panel-body">
-
-                        <div class="form-group">
-                            <div v-for="(user, i) in users" :key="i">{{user.name}}
-                                <div class="mute" v-on:click="muteHandler(user.id)">M</div>
-                                <div class="ban" v-on:click="banHandler(user.id)">B</div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="panel panel-info" v-if="currentUser.admin === '0'">
-                    <div class="panel-heading">Users online:</div>
-                    <div class="panel-body">
-
-                        <div class="form-group">
-                            <div v-for="(user, id) in online" :key="id">{{user.name}}</div>
-                        </div>
-
-                    </div>
-                </div>
+                <users-list :users="users"/>
+                <online-users :online="online"/>
             </div>
 
         </div>
@@ -69,7 +42,19 @@
     let socket = null;
     let id = null;
 
+    import Chat from './Chat.vue'
+    import OnlineUsers from './OnlineUsers.vue'
+    import UsersList from './UsersList.vue'
+    import NewMsg from "./NewMsg";
+
     export default {
+
+        components: {
+            NewMsg,
+            OnlineUsers,
+            UsersList,
+            Chat,
+        },
 
         props: ['currentUser'],
 
@@ -87,7 +72,7 @@
             socket.onmessage = (event) => {
 
                 let data = JSON.parse(event.data);
-                console.log(data);
+                console.log(data, user);
                 switch (data.type) {
                     case('online'):
                         this.messages.push({
@@ -174,25 +159,13 @@
                 messages: [],
                 online: [],
                 users: [],
+                user: $('#user').text(),
                 name: $('.dropdown-toggle').text().trim(),
                 newMessage: '',
-                cloud: true,
-                italics: true,
-                youreMsg: true,
-                aliensMsg: true,
             }
         },
 
         methods: {
-            newMessageHandler () {
-                socket.send(JSON.stringify({
-                    type: 'message',
-                    id: id,
-                    name: this.name,
-                    text: this.newMessage,
-                }));
-                this.newMessage = '';
-            },
             muteHandler (id) {
                 socket.send(JSON.stringify({
                     type: 'mute',
@@ -205,59 +178,18 @@
                     id: id,
                 }));
             },
-            randomColor(){
-                let r = Math.floor(Math.random() * (246));
-                let g = Math.floor(Math.random() * (246));
-                let b = Math.floor(Math.random() * (246));
-                let color = '#' + r.toString(16) + g.toString(16) + b.toString(16);
-                return color;
+            addMsg (data){
+                socket.send(JSON.stringify({
+                    type: 'message',
+                    id: id,
+                    name: data.name,
+                    text: data.text,
+                }));
             }
         },
     }
 </script>
 
 
-
 <style>
-    div.italics{
-        font-style: italic;
-        color: #A9A9A9;
-    }
-    div.cloud{
-        padding: 10px;
-        margin: 5px 0px;
-        border-radius: 10px;
-        display: inline-block;
-    }
-    span.name{
-        font-weight: bold;
-    }
-    div.mute{
-        width: 20px;
-        height: 20px;
-        background: #FFA500;
-        border-radius: 5px;
-        display: inline-block;
-        text-align: center;
-        color: #FFFFFF;
-        font-weight: bold;
-        cursor: default;
-    }
-    div.ban{
-        width: 20px;
-        height: 20px;
-        background: #FF4500;
-        border-radius: 5px;
-        display: inline-block;
-        text-align: center;
-        color: #FFFFFF;
-        font-weight: bold;
-        cursor: default;
-    }
-    div.youreMsg{
-        background: #d9edf7;
-    }
-    div.aliensMsg{
-        background: #428bca;
-    }
 </style>
