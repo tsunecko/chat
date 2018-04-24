@@ -9,7 +9,6 @@
                     <div class="panel-body">
                         <div style="display:none" id="token">{{ currentUser.token }}</div>
                         <div style="display:none" id="id">{{ currentUser.id }}</div>
-                        <div style="display:none" id="user">{{ currentUser.admin }}</div>
 
                         <div class="form-group">
                             <label>Messages:</label>
@@ -18,7 +17,7 @@
                         </div>
 
                         <div class="form-group">
-                            <new-msg v-on:send="addMsg"/>
+                            <new-msg @send="addMsg"/>
                         </div>
 
                     </div>
@@ -26,8 +25,8 @@
             </div>
 
             <div class="col-md-2 col-sm-3 col-xs-6">
-                <users-list :users="users"/>
-                <online-users :online="online"/>
+                <users-list :users="users" @mute="sendMute" @ban="sendBan" :adm="currentUser.admin"/>
+                <online-users :online="online" :adm="currentUser.admin"/>
             </div>
 
         </div>
@@ -72,7 +71,7 @@
             socket.onmessage = (event) => {
 
                 let data = JSON.parse(event.data);
-                console.log(data, user);
+                console.log(data);
                 switch (data.type) {
                     case('online'):
                         this.messages.push({
@@ -113,9 +112,6 @@
                         }
                         break;
                     case('mute'):
-                        if(data.name === this.name) {
-                            alert('muted!');
-                        }
                         this.messages.push({
                             type: 'italics',
                             name: data.name,
@@ -159,23 +155,22 @@
                 messages: [],
                 online: [],
                 users: [],
-                user: $('#user').text(),
                 name: $('.dropdown-toggle').text().trim(),
                 newMessage: '',
             }
         },
 
         methods: {
-            muteHandler (id) {
+            sendMute(data) {
                 socket.send(JSON.stringify({
                     type: 'mute',
-                    id: id,
+                    id: data.id,
                 }));
             },
-            banHandler (id) {
+            sendBan(data) {
                 socket.send(JSON.stringify({
                     type: 'ban',
-                    id: id,
+                    id: data.id,
                 }));
             },
             addMsg (data){

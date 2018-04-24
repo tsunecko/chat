@@ -1,14 +1,14 @@
 <template>
     <div>
-        <div class="panel panel-info" >
-            <!--v-if="user === '1'"-->
+        <div class="panel panel-info" v-if="!!+adm">
+
             <div class="panel-heading">All users:</div>
             <div class="panel-body">
 
                 <div class="form-group">
                     <div v-for="(u, i) in users" :key="i">{{u.name}}
-                        <div class="state mute" @click="muteHandler(user.id)">M</div>
-                        <div class="state ban" @click="banHandler(user.id)">B</div>
+                        <div class="state mute" @click="muteHandler(u.id)">M</div>
+                        <div class="state ban" @click="banHandler(u.id)">B</div>
                     </div>
                 </div>
 
@@ -20,7 +20,19 @@
 <script>
     export default {
         name: "user-list",
-        props: ['users','user'],
+        props: ['users','adm'],
+        methods: {
+            muteHandler (id) {
+                this.$emit('mute', {
+                    id: id,
+                });
+            },
+            banHandler (id) {
+                this.$emit('ban', {
+                    id: id,
+                });
+            },
+        }
     }
 </script>
 

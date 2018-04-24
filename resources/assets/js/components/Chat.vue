@@ -1,11 +1,11 @@
 <template>
     <div>
         <div v-for="(msg, i) in messages" :key="i">
-            <div v-if="msg.type === 'italics'" v-bind:class="{italics:italics}">
+            <div v-if="msg.type === 'italics'" :class="{italics:italics}">
                 {{msg.name}} {{msg.text}}
             </div>
-            <div v-else="msg.type === 'cloud'" v-bind:class="{cloud:cloud, youreMsg:youreMsg}">
-                <span class="name" v-bind:style="{color: randomColor()}">{{msg.name}}</span> {{msg.text}}
+            <div v-else="msg.type === 'cloud'" :class="{cloud:cloud, youreMsg:youreMsg}">
+                <span class="name" :style="{color: randomColor()}"> {{msg.name}} </span> {{msg.text}}
             </div>
         </div>
     </div>
@@ -20,14 +20,14 @@
                 cloud: true,
                 italics: true,
                 youreMsg: true,
-                aliensMsg: true,
             }
         },
         methods: {
             randomColor(){
-                let r = Math.floor(Math.random() * (246));
-                let g = Math.floor(Math.random() * (246));
-                let b = Math.floor(Math.random() * (246));
+                let rand = () => {
+                    return Math.floor(Math.random() * (246));
+                };
+                let r = rand(); let g = rand(); let b = rand();
                 let color = '#' + r.toString(16) + g.toString(16) + b.toString(16);
                 return color;
             },
@@ -52,8 +52,5 @@
     }
     div.youreMsg{
         background: #d9edf7;
-    }
-    div.aliensMsg{
-        background: #428bca;
     }
 </style>

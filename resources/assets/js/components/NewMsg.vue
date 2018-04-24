@@ -16,8 +16,6 @@
         methods: {
             newMessageHandler(){
                 this.$emit('send', {
-                    // type: 'message',
-                    // id: id,
                     name: this.name,
                     text: this.newMessage,
                 });

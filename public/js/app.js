@@ -43543,7 +43543,7 @@ exports = module.exports = __webpack_require__(1)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -43632,7 +43632,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 
 var token = null;
@@ -43670,7 +43669,7 @@ var id = null;
         socket.onmessage = function (event) {
 
             var data = JSON.parse(event.data);
-            console.log(data, user);
+            console.log(data);
             switch (data.type) {
                 case 'online':
                     _this.messages.push({
@@ -43701,10 +43700,10 @@ var id = null;
 
                     try {
                         for (var _iterator = data.names[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                            var _user = _step.value;
+                            var user = _step.value;
 
                             _this.online.push({
-                                name: _user
+                                name: user
                             });
                         }
                     } catch (err) {
@@ -43731,11 +43730,11 @@ var id = null;
 
                     try {
                         for (var _iterator2 = data.names[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                            var _user2 = _step2.value;
+                            var _user = _step2.value;
 
                             _this.users.push({
-                                name: _user2.name,
-                                id: _user2.id
+                                name: _user.name,
+                                id: _user.id
                             });
                         }
                     } catch (err) {
@@ -43755,9 +43754,6 @@ var id = null;
 
                     break;
                 case 'mute':
-                    if (data.name === _this.name) {
-                        alert('muted!');
-                    }
                     _this.messages.push({
                         type: 'italics',
                         name: data.name,
@@ -43800,7 +43796,6 @@ var id = null;
             messages: [],
             online: [],
             users: [],
-            user: $('#user').text(),
             name: $('.dropdown-toggle').text().trim(),
             newMessage: ''
         };
@@ -43808,16 +43803,16 @@ var id = null;
 
 
     methods: {
-        muteHandler: function muteHandler(id) {
+        sendMute: function sendMute(data) {
             socket.send(JSON.stringify({
                 type: 'mute',
-                id: id
+                id: data.id
             }));
         },
-        banHandler: function banHandler(id) {
+        sendBan: function sendBan(data) {
             socket.send(JSON.stringify({
                 type: 'ban',
-                id: id
+                id: data.id
             }));
         },
         addMsg: function addMsg(data) {
@@ -43917,7 +43912,7 @@ exports = module.exports = __webpack_require__(1)(false);
 
 
 // module
-exports.push([module.i, "\ndiv.italics[data-v-3f23c80f]{\n    font-style: italic;\n    color: #A9A9A9;\n}\ndiv.cloud[data-v-3f23c80f]{\n    padding: 10px;\n    margin: 5px 0px;\n    border-radius: 10px;\n    display: inline-block;\n}\nspan.name[data-v-3f23c80f]{\n    font-weight: bold;\n}\ndiv.youreMsg[data-v-3f23c80f]{\n    background: #d9edf7;\n}\ndiv.aliensMsg[data-v-3f23c80f]{\n    background: #428bca;\n}\n", ""]);
+exports.push([module.i, "\ndiv.italics[data-v-3f23c80f]{\n    font-style: italic;\n    color: #A9A9A9;\n}\ndiv.cloud[data-v-3f23c80f]{\n    padding: 10px;\n    margin: 5px 0px;\n    border-radius: 10px;\n    display: inline-block;\n}\nspan.name[data-v-3f23c80f]{\n    font-weight: bold;\n}\ndiv.youreMsg[data-v-3f23c80f]{\n    background: #d9edf7;\n}\n", ""]);
 
 // exports
 
@@ -43949,16 +43944,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             cloud: true,
             italics: true,
-            youreMsg: true,
-            aliensMsg: true
+            youreMsg: true
         };
     },
 
     methods: {
         randomColor: function randomColor() {
-            var r = Math.floor(Math.random() * 246);
-            var g = Math.floor(Math.random() * 246);
-            var b = Math.floor(Math.random() * 246);
+            var rand = function rand() {
+                return Math.floor(Math.random() * 246);
+            };
+            var r = rand();var g = rand();var b = rand();
             var color = '#' + r.toString(16) + g.toString(16) + b.toString(16);
             return color;
         }
@@ -43991,7 +43986,7 @@ var render = function() {
               _c(
                 "span",
                 { staticClass: "name", style: { color: _vm.randomColor() } },
-                [_vm._v(_vm._s(msg.name))]
+                [_vm._v(" " + _vm._s(msg.name) + " ")]
               ),
               _vm._v(" " + _vm._s(msg.text) + "\n        ")
             ])
@@ -44095,7 +44090,7 @@ exports = module.exports = __webpack_require__(1)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -44122,12 +44117,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "online",
-    props: ['online', 'user']
-
+    props: ['online', 'adm']
 });
 
 /***/ }),
@@ -44139,24 +44132,23 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("div", { staticClass: "panel panel-info" }, [
-      _c("div", { staticClass: "panel-heading" }, [_vm._v("Users online:")]),
-      _vm._v(" "),
-      _c("div", { staticClass: "panel-body" }, [
-        _c(
-          "div",
-          { staticClass: "form-group" },
-          [
-            _c("div", [_vm._v(_vm._s(_vm.user))]),
-            _vm._v(" "),
-            _vm._l(_vm.online, function(u, id) {
-              return _c("div", { key: id }, [_vm._v(_vm._s(u.name))])
-            })
-          ],
-          2
-        )
-      ])
-    ])
+    !+_vm.adm
+      ? _c("div", { staticClass: "panel panel-info" }, [
+          _c("div", { staticClass: "panel-heading" }, [
+            _vm._v("Users online:")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "panel-body" }, [
+            _c(
+              "div",
+              { staticClass: "form-group" },
+              _vm._l(_vm.online, function(u, id) {
+                return _c("div", { key: id }, [_vm._v(_vm._s(u.name))])
+              })
+            )
+          ])
+        ])
+      : _vm._e()
   ])
 }
 var staticRenderFns = []
@@ -44288,7 +44280,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "user-list",
-    props: ['users', 'user']
+    props: ['users', 'adm'],
+    methods: {
+        muteHandler: function muteHandler(id) {
+            this.$emit('mute', {
+                id: id
+            });
+        },
+        banHandler: function banHandler(id) {
+            this.$emit('ban', {
+                id: id
+            });
+        }
+    }
 });
 
 /***/ }),
@@ -44300,46 +44304,48 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("div", { staticClass: "panel panel-info" }, [
-      _c("div", { staticClass: "panel-heading" }, [_vm._v("All users:")]),
-      _vm._v(" "),
-      _c("div", { staticClass: "panel-body" }, [
-        _c(
-          "div",
-          { staticClass: "form-group" },
-          _vm._l(_vm.users, function(u, i) {
-            return _c("div", { key: i }, [
-              _vm._v(_vm._s(u.name) + "\n                    "),
-              _c(
-                "div",
-                {
-                  staticClass: "state mute",
-                  on: {
-                    click: function($event) {
-                      _vm.muteHandler(_vm.user.id)
-                    }
-                  }
-                },
-                [_vm._v("M")]
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                {
-                  staticClass: "state ban",
-                  on: {
-                    click: function($event) {
-                      _vm.banHandler(_vm.user.id)
-                    }
-                  }
-                },
-                [_vm._v("B")]
-              )
-            ])
-          })
-        )
-      ])
-    ])
+    !!+_vm.adm
+      ? _c("div", { staticClass: "panel panel-info" }, [
+          _c("div", { staticClass: "panel-heading" }, [_vm._v("All users:")]),
+          _vm._v(" "),
+          _c("div", { staticClass: "panel-body" }, [
+            _c(
+              "div",
+              { staticClass: "form-group" },
+              _vm._l(_vm.users, function(u, i) {
+                return _c("div", { key: i }, [
+                  _vm._v(_vm._s(u.name) + "\n                    "),
+                  _c(
+                    "div",
+                    {
+                      staticClass: "state mute",
+                      on: {
+                        click: function($event) {
+                          _vm.muteHandler(u.id)
+                        }
+                      }
+                    },
+                    [_vm._v("M")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      staticClass: "state ban",
+                      on: {
+                        click: function($event) {
+                          _vm.banHandler(u.id)
+                        }
+                      }
+                    },
+                    [_vm._v("B")]
+                  )
+                ])
+              })
+            )
+          ])
+        ])
+      : _vm._e()
   ])
 }
 var staticRenderFns = []
@@ -44438,7 +44444,7 @@ exports = module.exports = __webpack_require__(1)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -44468,8 +44474,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         newMessageHandler: function newMessageHandler() {
             this.$emit('send', {
-                // type: 'message',
-                // id: id,
                 name: this.name,
                 text: this.newMessage
             });
@@ -44562,12 +44566,6 @@ var render = function() {
             _vm._v(" "),
             _c(
               "div",
-              { staticStyle: { display: "none" }, attrs: { id: "user" } },
-              [_vm._v(_vm._s(_vm.currentUser.admin))]
-            ),
-            _vm._v(" "),
-            _c(
-              "div",
               { staticClass: "form-group" },
               [
                 _c("label", [_vm._v("Messages:")]),
@@ -44591,9 +44589,14 @@ var render = function() {
         "div",
         { staticClass: "col-md-2 col-sm-3 col-xs-6" },
         [
-          _c("users-list", { attrs: { users: _vm.users } }),
+          _c("users-list", {
+            attrs: { users: _vm.users, adm: _vm.currentUser.admin },
+            on: { mute: _vm.sendMute, ban: _vm.sendBan }
+          }),
           _vm._v(" "),
-          _c("online-users", { attrs: { online: _vm.online } })
+          _c("online-users", {
+            attrs: { online: _vm.online, adm: _vm.currentUser.admin }
+          })
         ],
         1
       )

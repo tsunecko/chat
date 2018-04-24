@@ -46,7 +46,7 @@ class ChatSocket extends BaseSocket
             'name' => $conn->user->name,
         ]);
 
-        if ($user->admin === "1") {
+        if ($user->admin) {
             $conn->send(json_encode([
                 'type' => 'users',
                 'names' => User::all('name', 'id'),
@@ -86,7 +86,7 @@ class ChatSocket extends BaseSocket
                 }
             case 'mute':
                 $user = User::where('id', $data['id']);
-                if ($from->user->admin === "1"){
+                if ($from->user->admin){
                     if($user->value('ismuted')) {
                         $type = 'unmute';
                         $user->update(['ismuted'=>"0"]);
@@ -103,7 +103,7 @@ class ChatSocket extends BaseSocket
 
             case 'ban':
                 $user = User::where('id', $data['id']);
-                if ($from->user->admin === "1"){
+                if ($from->user->admin){
                     if($user->value('isbaned')) {
                         $type = 'unban';
                         $user->update(['isbaned'=>"0"]);
@@ -151,5 +151,11 @@ class ChatSocket extends BaseSocket
         foreach ($this->clients as $client) {
             $client->send(json_encode($data));
         }
+    }
+    protected function findAll() {
+        foreach ($this->clients as $client) {
+            $names[] = $client->user->name;
+        }
+
     }
 }
